@@ -214,7 +214,7 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 		return pnCalendar;
 	}
 
-	// 将Cursor的一行转化成一个对象
+	// 将Cursor的一行转化成一个对象//
 	public <T> T cursor2Object(Cursor cur, T t)
 			throws IllegalArgumentException, IllegalAccessException,
 			NoSuchFieldException {
