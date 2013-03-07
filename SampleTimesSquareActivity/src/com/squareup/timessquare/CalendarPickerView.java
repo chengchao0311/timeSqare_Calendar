@@ -55,6 +55,7 @@ public class CalendarPickerView extends ViewPager {
 	private final Calendar minCal = Calendar.getInstance();
 	private final Calendar maxCal = Calendar.getInstance();
 	private final Calendar monthCounter = Calendar.getInstance();
+	private ArrayList<Calendar> eventsDays;
 	private final MonthView.Listener listener = new CellClickedListener();
 	public int selectedIndex;
 
@@ -89,10 +90,10 @@ public class CalendarPickerView extends ViewPager {
 	 *            Latest selectable date, exclusive. Must be later than
 	 *            {@code minDate}.
 	 */
-	public void init(Date selectedDate, Date minDate, Date maxDate, FragmentManager fm) {
+	public void init(Date selectedDate, Date minDate, Date maxDate, FragmentManager fm, ArrayList<Calendar> eventsDays) {
 		adapter = new MonthAdapter(fm,months,cells,listener,weekdayNameFormat,today);
 		setAdapter(adapter);
-		
+		this.eventsDays = eventsDays;
 		if (selectedDate == null || minDate == null || maxDate == null) {
 			throw new IllegalArgumentException("All dates must be non-null.  "
 					+ dbg(selectedDate, minDate, maxDate));
@@ -285,8 +286,18 @@ public class CalendarPickerView extends ViewPager {
 						&& betweenDates(cal, minCal, maxCal);
 				boolean isToday = sameDate(cal, today);
 				int value = cal.get(DAY_OF_MONTH);
+				boolean hasEvent = false;
+				
+				for (int i = 0; i < eventsDays.size(); i++) {
+					if(sameDate(cal, eventsDays.get(i))){
+						hasEvent = true;
+						break;
+					}else {
+						hasEvent = false;
+					}
+				}
 				MonthCellDescriptor cell = new MonthCellDescriptor(date,
-						isCurrentMonth, isSelectable, isSelected, isToday,
+						isCurrentMonth, isSelectable, isSelected,hasEvent, isToday,
 						value);
 				if (isSelected) {
 					selectedCell = cell;

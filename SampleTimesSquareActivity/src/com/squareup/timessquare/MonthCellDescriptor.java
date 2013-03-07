@@ -11,14 +11,16 @@ class MonthCellDescriptor {
   private boolean isSelected;
   private final boolean isToday;
   private final boolean isSelectable;
-
-  MonthCellDescriptor(Date date, boolean currentMonth, boolean selectable, boolean selected,
+  private final boolean hasEvent;
+  
+  MonthCellDescriptor(Date date, boolean currentMonth, boolean selectable, boolean selected,boolean hasEvent,
       boolean today, int value) {
     this.date = date;
     isCurrentMonth = currentMonth;
     isSelectable = selectable;
     isSelected = selected;
     isToday = today;
+    this.hasEvent = hasEvent;
     this.value = value;
   }
 
@@ -50,7 +52,11 @@ class MonthCellDescriptor {
     return value;
   }
 
-  @Override public String toString() {
+  public boolean isHasEvent() {
+	return hasEvent;
+  }
+
+@Override public String toString() {
     return "MonthCellDescriptor{"
         + "date="
         + date

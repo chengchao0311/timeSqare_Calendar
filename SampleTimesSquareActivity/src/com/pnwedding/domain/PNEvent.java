@@ -1,6 +1,6 @@
 package com.pnwedding.domain;
 
-public class Event {
+public class PNEvent {
 	
 	public String	calendar_id	;
 	public String	organizer	;

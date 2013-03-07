@@ -4,6 +4,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -86,9 +87,23 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 		startTime.set(Calendar.DAY_OF_MONTH, 1);
 
 		Date startDate = startTime.getTime();
-
+		
+		//增加事件
+		ArrayList<Calendar> eventDays = new ArrayList<Calendar>();
+		Calendar weddingDay = Calendar.getInstance();
+		weddingDay.set(2013, 04, 04);
+		eventDays.add(weddingDay);
+		
+		Calendar weddingDay1 = Calendar.getInstance();
+		weddingDay1.set(2013, 05, 04);
+		eventDays.add(weddingDay1);
+		
+		Calendar weddingDay6 = Calendar.getInstance();
+		weddingDay6.set(2013, 05, 01);
+		eventDays.add(weddingDay6);
+		
 		calendar.init(new Date(), startDate, targetDate.getTime(),
-				getSupportFragmentManager());
+				getSupportFragmentManager(),eventDays);
 		calendar.setVerticalScrollBarEnabled(false);
 		calendar.setEnabled(false);
 		calendar.setOnPageChangeListener(this);
@@ -208,22 +223,20 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 		cur = cr.query(uri, EVENT_PROJECTION, selection, selectionArgs, null);
 		pnCalendar = new PNCalendar();
 		if (cur.moveToNext()) {
-			cursor2Object(cur, pnCalendar);
+			cursor2PNCalendar(cur, pnCalendar);
 		}
 		cur.close();
 		return pnCalendar;
 	}
 
-	// 将Cursor的一行转化成一个对象//
-	public <T> T cursor2Object(Cursor cur, T t)
+	// 将Cursor的一行转化成一个PNCalendar
+	public PNCalendar cursor2PNCalendar(Cursor cur, PNCalendar pnCalendar)
 			throws IllegalArgumentException, IllegalAccessException,
 			NoSuchFieldException {
-		Field[] fields = t.getClass().getFields();
-		for (int i = 0; i < fields.length; i++) {
-			int columnIndex = cur.getColumnIndex(fields[i].getName());
-			t.getClass().getField(fields[i].getName())
-					.set(t, cur.getString(columnIndex));
-		}
-		return t;
+		pnCalendar.set_id(cur.getString(cur.getColumnIndex("_id")));
+		pnCalendar.setAccount_name(cur.getString(cur.getColumnIndex("account_name")));
+		pnCalendar.setCalendar_displayName(cur.getString(cur.getColumnIndex("calendar_displayName")));
+		pnCalendar.setOwnerAccount(cur.getString(cur.getColumnIndex("ownerAccount")));
+		return pnCalendar;
 	}
 }
