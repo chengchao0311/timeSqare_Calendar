@@ -1,5 +1,7 @@
 package com.pnwedding.domain;
 
+import java.util.ArrayList;
+
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -10,6 +12,7 @@ import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 
 public class PNCalendar {
+	@SuppressLint("InlinedApi")
 	public static final String[] EVENT_PROJECTION = new String[] {
 			Calendars._ID, // 0
 			Calendars.ACCOUNT_NAME, // 1
@@ -17,16 +20,16 @@ public class PNCalendar {
 			Calendars.OWNER_ACCOUNT // 3
 	};
 
-	public String _id;
+	public long _id;
 	public String account_name;
 	public String calendar_displayName;
 	public String ownerAccount;
 
-	public String get_id() {
+	public long get_id() {
 		return _id;
 	}
 
-	public void set_id(String _id) {
+	public void set_id(long _id) {
 		this._id = _id;
 	}
 
@@ -55,7 +58,7 @@ public class PNCalendar {
 	}
 
 	@SuppressLint("NewApi")
-	public PNCalendar findPNCalendarByDisplayName(Context context,
+	public static PNCalendar findPNCalendarByDisplayName(Context context,
 			String displayName) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException {
 		Cursor cur = null;
 		PNCalendar pnCalendar = null;
@@ -75,10 +78,10 @@ public class PNCalendar {
 	}
 
 	// 将Cursor的一行转化成一个PNCalendar
-	private PNCalendar cursor2PNCalendar(Cursor cur, PNCalendar pnCalendar)
+	private static PNCalendar cursor2PNCalendar(Cursor cur, PNCalendar pnCalendar)
 			throws IllegalArgumentException, IllegalAccessException,
 			NoSuchFieldException {
-		pnCalendar.set_id(cur.getString(cur.getColumnIndex("_id")));
+		pnCalendar.set_id(cur.getLong(cur.getColumnIndex("_id")));
 		pnCalendar.setAccount_name(cur.getString(cur
 				.getColumnIndex("account_name")));
 		pnCalendar.setCalendar_displayName(cur.getString(cur
@@ -86,5 +89,32 @@ public class PNCalendar {
 		pnCalendar.setOwnerAccount(cur.getString(cur
 				.getColumnIndex("ownerAccount")));
 		return pnCalendar;
+	}
+	
+	
+	@SuppressLint("NewApi")
+	public ArrayList<PNEvent> queryEventsFromCalendar(Context context) {
+		ArrayList<PNEvent> events = new ArrayList<PNEvent>();
+		//CalendarContract.Events.CALENDAR_ID != 1 表示只查询未被删除的事件
+		Cursor cur = context.getContentResolver().query(
+				Events.CONTENT_URI,
+				new String[] { "_id", "title", "dtstart", "dtend" },
+				CalendarContract.Events.CALENDAR_ID + " = ?" + " AND "
+						+ CalendarContract.Events.DELETED + " != ?",
+				new String[] { String.valueOf(this._id), "1" }, "dtstart ASC");
+		
+		String[] l = cur.getColumnNames();
+		
+		while (cur.moveToNext()) {
+			PNEvent pnEvent = new PNEvent();
+			pnEvent.calendar_id = this._id;
+			pnEvent.title = cur.getString(cur.getColumnIndex("title"));
+			pnEvent.dtstart = cur.getLong(cur.getColumnIndex("dtstart"));
+			pnEvent.dtend = cur.getLong(cur.getColumnIndex("dtend"));
+			pnEvent._id = cur.getLong(cur.getColumnIndex("_id"));
+			events.add(pnEvent);
+		}
+		cur.close();
+		return events;
 	}
 }

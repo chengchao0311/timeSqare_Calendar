@@ -18,6 +18,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.pnwedding.domain.PNEvent;
 import com.squareup.timessquare.sample.R;
 
 import android.annotation.SuppressLint;
@@ -55,15 +56,14 @@ public class CalendarPickerView extends ViewPager {
 	private final Calendar minCal = Calendar.getInstance();
 	private final Calendar maxCal = Calendar.getInstance();
 	private final Calendar monthCounter = Calendar.getInstance();
-	private ArrayList<Calendar> eventsDays;
+	private ArrayList<PNEvent> events;
 	private final MonthView.Listener listener = new CellClickedListener();
 	public int selectedIndex;
+	public ToDoListCallBack toDoListCallBack;
 
-	
-	
 	public CalendarPickerView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-	
+
 		final int bg = context.getResources().getColor(R.color.calendar_bg);
 		monthNameFormat = new SimpleDateFormat(
 				context.getString(R.string.month_name_format));
@@ -90,10 +90,12 @@ public class CalendarPickerView extends ViewPager {
 	 *            Latest selectable date, exclusive. Must be later than
 	 *            {@code minDate}.
 	 */
-	public void init(Date selectedDate, Date minDate, Date maxDate, FragmentManager fm, ArrayList<Calendar> eventsDays) {
-		adapter = new MonthAdapter(fm,months,cells,listener,weekdayNameFormat,today);
+	public void init(Date selectedDate, Date minDate, Date maxDate,
+			FragmentManager fm, ArrayList<PNEvent> events) {
+		adapter = new MonthAdapter(fm, months, cells, listener,
+				weekdayNameFormat, today);
 		setAdapter(adapter);
-		this.eventsDays = eventsDays;
+		this.events = events;
 		if (selectedDate == null || minDate == null || maxDate == null) {
 			throw new IllegalArgumentException("All dates must be non-null.  "
 					+ dbg(selectedDate, minDate, maxDate));
@@ -216,6 +218,15 @@ public class CalendarPickerView extends ViewPager {
 				// Track the currently selected date value.
 				selectedCal.setTime(cell.getDate());
 				// Update the adapter.
+				if (cell.isHasEvent()) {
+					if (toDoListCallBack != null) {
+						toDoListCallBack.showEventsOfTheDay(cell.getEvents());
+					}
+				}else {
+					if (toDoListCallBack != null) {
+						toDoListCallBack.showEventsOfTheDay(null);
+					}
+				}
 				adapter.notifyDataSetChanged();
 			}
 		}
@@ -227,12 +238,11 @@ public class CalendarPickerView extends ViewPager {
 		MonthView.Listener listener;
 		DateFormat weekDateFormat;
 		Calendar today;
-		
-		public MonthAdapter(FragmentManager fm, List<MonthDescriptor> months
-				,List<List<List<MonthCellDescriptor>>> cells
-				,MonthView.Listener Listener
-				,DateFormat weekDateFormat
-				,Calendar today) {
+
+		public MonthAdapter(FragmentManager fm, List<MonthDescriptor> months,
+				List<List<List<MonthCellDescriptor>>> cells,
+				MonthView.Listener Listener, DateFormat weekDateFormat,
+				Calendar today) {
 			super(fm);
 			this.months = months;
 			this.cells = cells;
@@ -248,14 +258,15 @@ public class CalendarPickerView extends ViewPager {
 
 		@Override
 		public Fragment getItem(int position) {
-			return MonthFragment.create(months, cells,listener,weekDateFormat, today, position);
+			return MonthFragment.create(months, cells, listener,
+					weekDateFormat, today, position);
 		}
 
 		@Override
 		public long getItemId(int position) {
 			return position;
 		}
-		
+
 		@Override
 		public int getItemPosition(Object object) {
 			return POSITION_NONE;
@@ -277,6 +288,7 @@ public class CalendarPickerView extends ViewPager {
 			Logr.d("Building week row starting at %s", cal.getTime());
 			List<MonthCellDescriptor> weekCells = new ArrayList<MonthCellDescriptor>();
 			cells.add(weekCells);
+			Calendar tempCal = null;
 			for (int c = 0; c < 7; c++) {
 				Date date = cal.getTime();
 				boolean isCurrentMonth = cal.get(MONTH) == month.getMonth();
@@ -288,17 +300,30 @@ public class CalendarPickerView extends ViewPager {
 				int value = cal.get(DAY_OF_MONTH);
 				boolean hasEvent = false;
 				
-				for (int i = 0; i < eventsDays.size(); i++) {
-					if(sameDate(cal, eventsDays.get(i))){
+				for (int i = 0; i < events.size(); i++) {
+					if (tempCal == null) {
+						tempCal = Calendar.getInstance();
+					}
+					tempCal.setTimeInMillis(events.get(i).dtstart);
+					if (sameDate(cal, tempCal)) {
 						hasEvent = true;
 						break;
-					}else {
+					} else {
 						hasEvent = false;
 					}
 				}
-				MonthCellDescriptor cell = new MonthCellDescriptor(date,
-						isCurrentMonth, isSelectable, isSelected,hasEvent, isToday,
-						value);
+				MonthCellDescriptor cell = null; 
+				if (hasEvent) {
+					ArrayList<PNEvent> sameDayEvents = getSameDayEvents(cal.getTimeInMillis());
+					cell = new MonthCellDescriptor(date,
+							isCurrentMonth, isSelectable, isSelected, hasEvent,
+							isToday, value,sameDayEvents);
+				}else {
+					cell = new MonthCellDescriptor(date,
+							isCurrentMonth, isSelectable, isSelected, hasEvent,
+							isToday, value,null);
+				}
+				
 				if (isSelected) {
 					selectedCell = cell;
 				}
@@ -307,6 +332,21 @@ public class CalendarPickerView extends ViewPager {
 			}
 		}
 		return cells;
+	}
+	
+	//获得time 所在时间的所有event
+	private ArrayList<PNEvent> getSameDayEvents(long time) {
+		ArrayList<PNEvent> oneDayEvents = new ArrayList<PNEvent>();
+		for (int i = 0; i < events.size(); i++) {
+			Calendar currCal = Calendar.getInstance();
+			Calendar eventCal = Calendar.getInstance();
+				currCal.setTimeInMillis(time);
+				eventCal.setTimeInMillis(events.get(i).dtstart);
+				if (sameDate(eventCal, currCal)) {
+					oneDayEvents.add(events.get(i));
+				}
+		}
+		return oneDayEvents;
 	}
 
 	private static boolean sameDate(Calendar cal, Calendar selectedDate) {
