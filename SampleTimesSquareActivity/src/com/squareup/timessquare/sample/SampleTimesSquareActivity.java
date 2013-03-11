@@ -8,8 +8,10 @@ import java.util.Calendar;
 import java.util.Date;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.CalendarContract.Calendars;
+import android.provider.ContactsContract.CommonDataKinds.Event;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.DisplayMetrics;
@@ -133,13 +135,15 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 		done.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
-				Log.d(TAG, "Selected time in millis: "
-						+ calendar.getSelectedDate().getTime());
-				Toast.makeText(
-						SampleTimesSquareActivity.this,
-						new SimpleDateFormat("yyyy.MM.dd").format(calendar
-								.getSelectedDate().getTime()), LENGTH_SHORT)
-						.show();
+				Intent intent = new Intent();
+				intent.setClass(SampleTimesSquareActivity.this, EventDetail.class);
+				intent.putExtra("selected_date", calendar.getSelectedDate().getTime());
+				SampleTimesSquareActivity.this.startActivityForResult(intent, 0);
+//				Toast.makeText(
+//						SampleTimesSquareActivity.this,
+//						new SimpleDateFormat("yyyy.MM.dd").format(calendar
+//								.getSelectedDate().getTime()), LENGTH_SHORT)
+//						.show();
 			}
 		});
 		findViewById(R.id.next).setOnClickListener(new OnClickListener() {

@@ -103,7 +103,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:paddingLeft="10dp"
-            android:text="ADD NEW EVENT" />
+            android:text="新增活动" />
 
         <TextView
             android:id="@+id/add_textview"
@@ -112,7 +112,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:paddingRight="10dp"
-            android:text="add" />
+            android:text="   +  " />
         </RelativeLayout>
         
         <ListView 
