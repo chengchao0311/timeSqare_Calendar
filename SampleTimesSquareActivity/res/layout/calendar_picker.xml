@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#F9E0D9"
     android:orientation="vertical" >
 
     <RelativeLayout
@@ -17,8 +17,9 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:paddingLeft="10dp"
-            android:text="PREV"
-            android:visibility="gone" />
+            android:background="#00ffffff"
+            android:text="@string/previous"
+            />
 
         <TextView
             android:id="@+id/title"
@@ -34,11 +35,12 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:paddingRight="10dp"
-            android:text="NEXT"
-            android:visibility="gone" />
+            android:background="#00ffffff"
+            android:text="@string/next"
+            />
     </RelativeLayout>
 
-    <com.squareup.timessquare.CalendarRowView
+    <LinearLayout
         android:id="@+id/weekRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
@@ -77,7 +79,7 @@
             style="@style/CalendarCell.DayHeader"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </com.squareup.timessquare.CalendarRowView>
+    </LinearLayout>
 
     <com.squareup.timessquare.CalendarPickerView
         android:id="@+id/calendar_view"
@@ -103,7 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:paddingLeft="10dp"
-            android:text="新增活动" />
+            android:text="新增活動" />
 
         <TextView
             android:id="@+id/add_textview"

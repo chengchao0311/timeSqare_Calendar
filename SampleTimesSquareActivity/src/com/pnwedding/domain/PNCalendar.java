@@ -1,9 +1,12 @@
 package com.pnwedding.domain;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import android.annotation.SuppressLint;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -116,5 +119,109 @@ public class PNCalendar {
 		}
 		cur.close();
 		return events;
+	}
+	
+	@SuppressLint("NewApi")
+	public long insertEvent(Context context, long cal_id, String timezone, 
+			String title, String description, String place, 
+			Calendar start, Calendar end, 
+			String hasAlarm) {
+		try{
+			ContentResolver cr = context.getContentResolver();
+			ContentValues values = new ContentValues();
+			//	values
+			values.put(CalendarContract.Events.CALENDAR_ID, cal_id);
+			values.put(CalendarContract.Events.TITLE, title);
+			values.put(CalendarContract.Events.DESCRIPTION, description);
+			values.put(CalendarContract.Events.EVENT_LOCATION, place);
+			values.put(CalendarContract.Events.EVENT_TIMEZONE, timezone);
+			values.put(CalendarContract.Events.DTSTART, start.getTimeInMillis());
+			values.put(CalendarContract.Events.DTEND, end.getTimeInMillis());
+			values.put(CalendarContract.Events.ALL_DAY, "0");	
+			values.put(CalendarContract.Events.HAS_ALARM, hasAlarm);
+			//	Uri,long_id
+			Uri uri = cr.insert(CalendarContract.Events.CONTENT_URI, values);
+			long id = Long.parseLong(uri.getLastPathSegment());
+
+			return id;
+		}catch(Exception e){
+			return -1;
+		}
+	}
+	
+	@SuppressLint("NewApi")
+	public long insertEvent(Context context, long cal_id, String timezone, 
+			String title, String description, String place, 
+			Calendar date) {
+		try{
+			ContentResolver cr = context.getContentResolver();
+			ContentValues values = new ContentValues();
+			//	values
+			values.put(CalendarContract.Events.CALENDAR_ID, cal_id);
+			values.put(CalendarContract.Events.TITLE, title);
+			values.put(CalendarContract.Events.DESCRIPTION, description);
+			values.put(CalendarContract.Events.EVENT_LOCATION, place);
+			values.put(CalendarContract.Events.EVENT_TIMEZONE, timezone);
+			values.put(CalendarContract.Events.DTSTART, date.getTimeInMillis());
+			values.put(CalendarContract.Events.DTEND, date.getTimeInMillis());
+			//	Uri,long_id
+			Uri uri = cr.insert(Events.CONTENT_URI, values);
+			long id = Long.parseLong(uri.getLastPathSegment());
+
+			return id;
+		}catch(Exception e){
+			return -1;
+		}
+	}
+	
+	@SuppressLint("NewApi")
+	public boolean deleteEvent(Context context,long event_id) {
+		try{
+			ContentResolver cr = context.getContentResolver();
+			//	Uri,delete
+			Uri uri = ContentUris.withAppendedId(Events.CONTENT_URI, event_id);
+			int rows = cr.delete(uri, null, null);
+			if(rows>0){
+				return true;
+			}else{
+				return false;
+			}
+		}catch(Exception e){
+			return false;
+		}
+	}
+	
+	@SuppressLint({ "InlinedApi", "NewApi" })
+	public boolean updateEvent(Context context,long event_id, long cal_id, String timezone, 
+			String title, String description, String place, 
+			Calendar start, Calendar end, 
+			String hasAlarm, String allDay) {
+		try{
+			ContentResolver cr = context.getContentResolver();
+			ContentValues values = new ContentValues();
+			//	values
+			if(cal_id!=-1)	values.put(Events.CALENDAR_ID, cal_id);
+			if(title!=null)	values.put(Events.TITLE, title);
+			if(description!=null)	values.put(Events.DESCRIPTION, description);
+			if(place!=null)	values.put(Events.EVENT_LOCATION, place);
+			if(timezone!=null)	values.put(Events.EVENT_TIMEZONE, timezone);
+			if(start!=null)	values.put(Events.DTSTART, start.getTimeInMillis());
+			if(end!=null)	values.put(Events.DTEND, end.getTimeInMillis());
+			if(allDay!=null)	values.put(Events.ALL_DAY, allDay);
+			if(hasAlarm!=null)	values.put(Events.HAS_ALARM, hasAlarm);
+			//	Uri,long_id
+			String where = Events._ID + "=?";
+			String[] selectionArgs = new String[]{
+				String.valueOf(event_id)
+			};
+			int rows = cr.update(Events.CONTENT_URI, values, where, selectionArgs);
+			if(rows>0){
+				return true;
+			}else{
+				return false;
+			}
+		}catch(Exception e){
+			return false;
+		}
 	}
 }

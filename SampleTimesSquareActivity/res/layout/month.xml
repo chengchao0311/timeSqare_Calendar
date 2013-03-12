@@ -3,12 +3,8 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:gravity="center_horizontal"
+    android:background="#F9E0D9"
     android:orientation="vertical" >
-
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
 
     <com.squareup.timessquare.CalendarGridView
         android:id="@+id/calendar_grid"

@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="#F9E0D9"
     android:orientation="vertical" >
 
     <TextView
         android:id="@+id/to_do_item"
-        android:paddingLeft="20dp"
+        android:paddingLeft="10dp"
         style="@style/CalendarTitle"
+        android:background="#F9E0D9"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 

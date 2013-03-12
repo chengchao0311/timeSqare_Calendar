@@ -39,14 +39,14 @@
             android:layout_margin="7dp"
             android:background="@drawable/head_button"
             android:gravity="center"
-            android:text="储存" />
+            android:text="儲存" />
     </RelativeLayout>
 
     <TextView
         android:id="@+id/wedding_name_label"
         style="@style/event_detail_input_area"
         android:layout_marginBottom="10dp"
-        android:text="Alva Chan的婚礼" />
+        android:text="Alva Chan的婚禮" />
 
     <RelativeLayout
         style="@style/event_detail_input_area"
@@ -56,7 +56,7 @@
             android:id="@+id/title_text"
             style="@style/event_detail_input_area_label"
             android:layout_alignParentLeft="true"
-            android:text="主题:" />
+            android:text="主題:" />
 
         <EditText
             android:id="@+id/title_edit"
@@ -103,7 +103,7 @@
             android:id="@+id/attendees_text"
             style="@style/event_detail_input_area_label"
             android:layout_alignParentLeft="true"
-            android:text="参与者:" />
+            android:text="參與者:" />
     </RelativeLayout>
 
     <LinearLayout

@@ -39,9 +39,9 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 	private int position;
 	private CalendarPickerView calendar;
 	private TextView title;
-	private TextView done;
+	private View done;
 	private int cellSize;
-	private CalendarRowView headerRow;
+	private LinearLayout headerRow;
 	private RelativeLayout bottom;
 	private float rowFive;
 	private float rowSix;
@@ -114,7 +114,7 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 		
 		
 		// 星期部分
-		headerRow = (CalendarRowView) findViewById(R.id.weekRow);
+		headerRow = (LinearLayout) findViewById(R.id.weekRow);
 		for (int c = Calendar.SUNDAY; c <= Calendar.SATURDAY; c++) {
 			targetDate.set(Calendar.DAY_OF_WEEK, c);
 			final TextView textView = (TextView) headerRow.getChildAt(c - 1);
@@ -131,7 +131,7 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 		
 		
 		// handle action
-		done = (TextView) findViewById(R.id.add_textview);
+		done =  findViewById(R.id.addEvent);
 		done.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -139,11 +139,6 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 				intent.setClass(SampleTimesSquareActivity.this, EventDetail.class);
 				intent.putExtra("selected_date", calendar.getSelectedDate().getTime());
 				SampleTimesSquareActivity.this.startActivityForResult(intent, 0);
-//				Toast.makeText(
-//						SampleTimesSquareActivity.this,
-//						new SimpleDateFormat("yyyy.MM.dd").format(calendar
-//								.getSelectedDate().getTime()), LENGTH_SHORT)
-//						.show();
 			}
 		});
 		findViewById(R.id.next).setOnClickListener(new OnClickListener() {
@@ -218,7 +213,11 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 	}
 
 	
-
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		calendar.toDoListCallBack = null;
+	}
 	
 
 

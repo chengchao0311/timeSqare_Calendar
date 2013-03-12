@@ -8,5 +8,4 @@ public class PNEvent {
 	public long	dtstart;
 	public long	dtend;
 	public long _id;
-	
 }

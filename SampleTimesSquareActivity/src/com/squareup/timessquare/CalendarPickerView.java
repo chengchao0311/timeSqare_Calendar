@@ -18,9 +18,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.pnwedding.domain.PNEvent;
-import com.squareup.timessquare.sample.R;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v4.app.Fragment;
@@ -28,12 +25,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 import android.widget.Toast;
+
+import com.pnwedding.domain.PNEvent;
+import com.squareup.timessquare.sample.R;
 
 /**
  * Android component to allow picking a date from a calendar view (a list of
@@ -222,7 +217,7 @@ public class CalendarPickerView extends ViewPager {
 					if (toDoListCallBack != null) {
 						toDoListCallBack.showEventsOfTheDay(cell.getEvents());
 					}
-				}else {
+				} else {
 					if (toDoListCallBack != null) {
 						toDoListCallBack.showEventsOfTheDay(null);
 					}
@@ -299,31 +294,42 @@ public class CalendarPickerView extends ViewPager {
 				boolean isToday = sameDate(cal, today);
 				int value = cal.get(DAY_OF_MONTH);
 				boolean hasEvent = false;
-				
+
 				for (int i = 0; i < events.size(); i++) {
 					if (tempCal == null) {
 						tempCal = Calendar.getInstance();
 					}
 					tempCal.setTimeInMillis(events.get(i).dtstart);
-					if (sameDate(cal, tempCal)) {
-						hasEvent = true;
-						break;
-					} else {
-						hasEvent = false;
+					
+					if (eventTimeInOneDay(events.get(i))) {//当前事件的开始时间和结束时间在同一天内
+						if (sameDate(cal, tempCal)) {//当前天和event是否是同一天
+							hasEvent = true;
+							break;
+						} else {
+							hasEvent = false;
+						}
+					} else {// 开始和结束时间不在同一天内 
+						if (betweenDates(cal, events.get(i).dtstart, events.get(i).dtend)) {
+							hasEvent = true;
+							break;
+						} else {
+							hasEvent = false;
+						}
 					}
 				}
-				MonthCellDescriptor cell = null; 
+				MonthCellDescriptor cell = null;
 				if (hasEvent) {
-					ArrayList<PNEvent> sameDayEvents = getSameDayEvents(cal.getTimeInMillis());
-					cell = new MonthCellDescriptor(date,
-							isCurrentMonth, isSelectable, isSelected, hasEvent,
-							isToday, value,sameDayEvents);
-				}else {
-					cell = new MonthCellDescriptor(date,
-							isCurrentMonth, isSelectable, isSelected, hasEvent,
-							isToday, value,null);
+					ArrayList<PNEvent> sameDayEvents = getEventsOfTheDay(cal
+							.getTimeInMillis());
+					cell = new MonthCellDescriptor(date, isCurrentMonth,
+							isSelectable, isSelected, hasEvent, isToday, value,
+							sameDayEvents);
+				} else {
+					cell = new MonthCellDescriptor(date, isCurrentMonth,
+							isSelectable, isSelected, hasEvent, isToday, value,
+							null);
 				}
-				
+
 				if (isSelected) {
 					selectedCell = cell;
 				}
@@ -333,18 +339,42 @@ public class CalendarPickerView extends ViewPager {
 		}
 		return cells;
 	}
+	//比较时间再区间内
+	public boolean checkHasEvents(Calendar cal, long startMill, long endMill) {
+		if ((cal.getTimeInMillis() >= startMill) && (cal.getTimeInMillis() <= endMill)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean eventTimeInOneDay(PNEvent pnEvent){
+		Calendar aCal = Calendar.getInstance();
+		Calendar bCal = Calendar.getInstance();
+		aCal.setTimeInMillis(pnEvent.dtstart);
+		bCal.setTimeInMillis(pnEvent.dtend);
+		return sameDate(aCal, bCal);
+	}
 	
-	//获得time 所在时间的所有event
-	private ArrayList<PNEvent> getSameDayEvents(long time) {
+	// 获得time 所在时间的所有event
+	private ArrayList<PNEvent> getEventsOfTheDay(long time) {
 		ArrayList<PNEvent> oneDayEvents = new ArrayList<PNEvent>();
 		for (int i = 0; i < events.size(); i++) {
-			Calendar currCal = Calendar.getInstance();
-			Calendar eventCal = Calendar.getInstance();
+			if (eventTimeInOneDay(events.get(i))) { 
+				Calendar currCal = Calendar.getInstance();
+				Calendar eventCal = Calendar.getInstance();
 				currCal.setTimeInMillis(time);
 				eventCal.setTimeInMillis(events.get(i).dtstart);
 				if (sameDate(eventCal, currCal)) {
 					oneDayEvents.add(events.get(i));
 				}
+			}else {
+				Calendar cal = Calendar.getInstance();
+				cal.setTimeInMillis(time);
+				if (betweenDates(cal, events.get(i).dtstart, events.get(i).dtend)) { //时间的区间包含这一天
+					oneDayEvents.add(events.get(i));
+				}
+			}
 		}
 		return oneDayEvents;
 	}
@@ -354,7 +384,18 @@ public class CalendarPickerView extends ViewPager {
 				&& cal.get(YEAR) == selectedDate.get(YEAR)
 				&& cal.get(DAY_OF_MONTH) == selectedDate.get(DAY_OF_MONTH);
 	}
-
+	
+	private static boolean betweenDates(Calendar cal, long minCalLong,
+			long maxCalLong) {
+		final Date date = cal.getTime();
+		Calendar minCal = Calendar.getInstance();
+		minCal.setTimeInMillis(minCalLong);
+		Calendar maxCal = Calendar.getInstance();
+		maxCal.setTimeInMillis(maxCalLong);
+		return betweenDates(date, minCal, maxCal);
+	}
+	
+	
 	private static boolean betweenDates(Calendar cal, Calendar minCal,
 			Calendar maxCal) {
 		final Date date = cal.getTime();

@@ -48,8 +48,6 @@ public class MonthView extends LinearLayout {
 	@Override
 	protected void onFinishInflate() {
 		super.onFinishInflate();
-		title = (TextView) findViewById(R.id.title);
-		title.setVisibility(View.GONE);
 		grid = (CalendarGridView) findViewById(R.id.calendar_grid);
 	}
 
@@ -57,7 +55,6 @@ public class MonthView extends LinearLayout {
 			List<List<MonthCellDescriptor>> cells) {
 		Logr.d("Initializing MonthView for %s", month);
 		long start = System.currentTimeMillis();
-		title.setText(month.getLabel());
 
 		final int numRows = cells.size();
 		for (int i = 0; i < 6; i++) {
