@@ -29,6 +29,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="showDatePicker"
+            android:background="@drawable/choose_date"
             android:textColor="#000000" />
 
         <Button
@@ -36,6 +38,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:onClick="showTimePicker"
+            android:background="@drawable/choose_date"
             android:textColor="#000000" />
     </LinearLayout>
 
@@ -62,6 +68,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:onClick="showDatePicker"
+            android:background="@drawable/choose_date"
             android:textColor="#000000" />
 
         <Button
@@ -69,6 +77,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:layout_marginLeft="1dp"
+            android:layout_marginRight="1dp"
+            android:background="@drawable/choose_date"
+            android:onClick="showTimePicker"
             android:textColor="#000000" />
     </LinearLayout>
     

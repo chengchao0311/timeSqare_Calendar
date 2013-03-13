@@ -379,7 +379,7 @@ public class CalendarPickerView extends ViewPager {
 		return oneDayEvents;
 	}
 
-	private static boolean sameDate(Calendar cal, Calendar selectedDate) {
+	public static boolean sameDate(Calendar cal, Calendar selectedDate) {
 		return cal.get(MONTH) == selectedDate.get(MONTH)
 				&& cal.get(YEAR) == selectedDate.get(YEAR)
 				&& cal.get(DAY_OF_MONTH) == selectedDate.get(DAY_OF_MONTH);
