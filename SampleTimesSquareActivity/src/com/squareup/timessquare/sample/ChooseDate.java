@@ -24,15 +24,16 @@ import android.widget.TimePicker;
 
 //用于给事件选择时间
 public class ChooseDate extends Activity {
-	private static final String[] week = {"週一","週二","週三","週四","週五","週六","週日"};
-	
+	private static final String[] week = { "週一", "週二", "週三", "週四", "週五", "週六",
+			"週日" };
+
 	private Button fromTime;
 	private Button fromDate;
 	private Calendar fromDateCal;
 	private Calendar toDateCal;
 	private Button toDate;
 	private Button toTime;
-	
+
 	@SuppressLint("SimpleDateFormat")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +61,8 @@ public class ChooseDate extends Activity {
 	}
 
 	public void showTimePicker(final View v) {
-		
-		//初始化 TimePickerDialog 的时间
+
+		// 初始化 TimePickerDialog 的时间
 		int buildHour = 0;
 		int buildMinute = 0;
 		if (v.getId() == R.id.from_time) {
@@ -71,8 +72,7 @@ public class ChooseDate extends Activity {
 			buildHour = toDateCal.get(Calendar.HOUR_OF_DAY);
 			buildMinute = toDateCal.get(Calendar.MINUTE);
 		}
-		
-		
+
 		TimePickerDialog timepicker = new TimePickerDialog(ChooseDate.this,
 				new OnTimeSetListener() {
 
@@ -87,35 +87,29 @@ public class ChooseDate extends Activity {
 									fromDateCal.get(Calendar.DAY_OF_MONTH),
 									hourOfDay, minute);
 
-							// 如果两个from和to是同一个天 就需要比较时间，来决定是否改变toTime
-							if (CalendarPickerView.sameDate(fromDateCal,
-									toDateCal)
-									&& (!toDate.getText().toString().equals(""))) {// toDate没有文字
-																					// 就不需要设置toTime
-								if (toDateCal.getTime().before(
-										fromDateCal.getTime())) {
-									// 如果fromDate 时间现在小于了
-									// toDate的时间就把toDateCal time设置成fromDate的时间
-									toDateCal.set(fromDateCal.get(Calendar.YEAR),//
-											fromDateCal.get(Calendar.MONDAY), //
-											fromDateCal
-													.get(Calendar.DAY_OF_MONTH),//
-											fromDateCal
-													.get(Calendar.HOUR_OF_DAY),//
-											fromDateCal.get(Calendar.MINUTE));
-									toTime.setText(buildTimeString(toDateCal));
-								}
+							// 就不需要设置toTime
+							if (toDateCal.getTime().before(
+									fromDateCal.getTime())) {
+								// 如果fromDate 时间现在小于了
+								// toDate的时间就把toDateCal time设置成fromDate的时间
+								toDateCal.set(fromDateCal.get(Calendar.YEAR),//
+										fromDateCal.get(Calendar.MONDAY), //
+										fromDateCal.get(Calendar.DAY_OF_MONTH),//
+										fromDateCal.get(Calendar.HOUR_OF_DAY),//
+										fromDateCal.get(Calendar.MINUTE));
+								toTime.setText(buildTimeString(toDateCal));
 							}
 							fromTime.setText(buildTimeString(fromDateCal));
 						} else {// 点击的是to_Time
-							if (fromTime.getText().equals("")) {//如果from time 沒有設置 就直接返回
+							if (fromTime.getText().equals("")) {// 如果from time
+																// 沒有設置 就直接返回
 								return;
 							}
 							toDateCal.set(toDateCal.get(Calendar.YEAR),//
 									toDateCal.get(Calendar.MONTH),//
 									toDateCal.get(Calendar.DAY_OF_MONTH),//
 									hourOfDay, minute);
-							
+
 							if (toDateCal.getTime().before(
 									fromDateCal.getTime())) {
 								// 如果fromDate 时间现在小于了
@@ -134,8 +128,8 @@ public class ChooseDate extends Activity {
 	}
 
 	public void showDatePicker(final View v) {
-		
-		//初始化DatePickerDialog的显示时间
+
+		// 初始化DatePickerDialog的显示时间
 		int buildYear = 0;
 		int buildMonth = 0;
 		int buildDate = 0;
@@ -159,7 +153,8 @@ public class ChooseDate extends Activity {
 						if (v.getId() == R.id.from_date) {// 点击的是from_Date
 							fromDateCal.set(year, monthOfYear, dayOfMonth);
 							fromDate.setText(buildDateString(fromDateCal));
-							if (toDateCal.getTime().before( fromDateCal.getTime())) {//如果此時toDateCal時間小於fromDate時間
+							if (toDateCal.getTime().before(
+									fromDateCal.getTime())) {// 如果此時toDateCal時間小於fromDate時間
 								toDateCal.set(fromDateCal.get(Calendar.YEAR),
 										fromDateCal.get(Calendar.MONTH),
 										fromDateCal.get(Calendar.DAY_OF_MONTH),
@@ -194,11 +189,10 @@ public class ChooseDate extends Activity {
 	}
 
 	public String buildDateString(Calendar cal) {
-		
-	  new SimpleDateFormat("EEE").format(cal
-				.getTime());
-		return cal.get(Calendar.YEAR) + "年" + (cal.get(Calendar.MONTH) + 1) + "月"
-				+ cal.get(Calendar.DAY_OF_MONTH) + "日 "  ;
+
+		String week = new SimpleDateFormat("EEE").format(cal.getTime());
+		return cal.get(Calendar.YEAR) + "年" + (cal.get(Calendar.MONTH) + 1)
+				+ "月" + cal.get(Calendar.DAY_OF_MONTH) + "日 " + week;
 	}
 
 	public String buildTimeString(Calendar cal) {
