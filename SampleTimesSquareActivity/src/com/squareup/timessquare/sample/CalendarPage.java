@@ -32,7 +32,7 @@ import com.squareup.timessquare.CalendarRowView;
 import com.squareup.timessquare.ToDoAdapter;
 import com.squareup.timessquare.ToDoListCallBack;
 
-public class SampleTimesSquareActivity extends FragmentActivity implements
+public class CalendarPage extends FragmentActivity implements
 		OnPageChangeListener, ToDoListCallBack {
 	private static final String TAG = "SampleTimesSquareActivity";
 
@@ -136,9 +136,9 @@ public class SampleTimesSquareActivity extends FragmentActivity implements
 			@Override
 			public void onClick(View view) {
 				Intent intent = new Intent();
-				intent.setClass(SampleTimesSquareActivity.this, EventDetail.class);
+				intent.setClass(CalendarPage.this, EventDetail.class);
 				intent.putExtra("selected_date", calendar.getSelectedDate().getTime());
-				SampleTimesSquareActivity.this.startActivityForResult(intent, 0);
+				CalendarPage.this.startActivityForResult(intent, 0);
 			}
 		});
 		findViewById(R.id.next).setOnClickListener(new OnClickListener() {

@@ -16,10 +16,8 @@
         android:icon="@drawable/icon"
         android:debuggable="true"
         >
-
         <activity
-            android:name=".SampleTimesSquareActivity"
-            android:label="Calendar Picker Sample"
+            android:name=".CalendarPage"
             android:configChanges="orientation|screenSize|keyboardHidden"
             >
             <intent-filter>
@@ -33,6 +31,5 @@
         <activity android:name="ChooseDate">
             
         </activity>
-        
     </application>
 </manifest>

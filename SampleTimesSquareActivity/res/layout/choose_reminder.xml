@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#F9E0D9"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/head_layout"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:background="#F5F5F5" >
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_margin="7dp"
+            android:background="@drawable/head_button"
+            android:gravity="center"
+            android:onClick="back"
+            android:text="返回" />
+
+        <TextView
+            android:id="@+id/head_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="日程编辑"
+            android:textColor="#000000"
+            android:textSize="17sp" />
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentRight="true"
+            android:layout_margin="7dp"
+            android:background="@drawable/head_button"
+            android:gravity="center"
+            android:onClick="done"
+            android:text="確定" />
+    </RelativeLayout>
+
+   <ListView 
+       android:id="@+id/listview"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content" 
+       ></ListView> 
+
+</RelativeLayout>

@@ -38,7 +38,7 @@ public class ChooseDate extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.date_choose_layout);
+		setContentView(R.layout.date_choose);
 
 		fromDateCal = Calendar.getInstance();
 		toDateCal = Calendar.getInstance();
@@ -54,6 +54,11 @@ public class ChooseDate extends Activity {
 		toTime = (Button) findViewById(R.id.to_time);
 		toTime.setInputType(InputType.TYPE_NULL); // 取消弹出软键盘
 
+		if (EventDetail.event.dtend != 0 && EventDetail.event.dtstart !=0) {
+			fromDateCal.setTimeInMillis(EventDetail.event.dtstart);
+			toDateCal.setTimeInMillis(EventDetail.event.dtend);
+		}
+		
 		fromDate.setText(buildDateString(fromDateCal));
 		fromTime.setText(buildTimeString(fromDateCal));
 		toDate.setText(buildDateString(toDateCal));
@@ -200,6 +205,13 @@ public class ChooseDate extends Activity {
 	}
 
 	public void back(View view) {
+		finish();
+	}
+
+	public void done(View v) {
+		setResult(1113);
+		EventDetail.event.dtstart = fromDateCal.getTimeInMillis();
+		EventDetail.event.dtend = toDateCal.getTimeInMillis();
 		finish();
 	}
 }
