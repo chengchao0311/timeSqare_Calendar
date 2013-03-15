@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="#F9E0D9"
@@ -22,14 +23,14 @@
             android:background="@drawable/head_button"
             android:gravity="center"
             android:onClick="back"
-            android:text="返回" />
+            android:text="@string/back" />
 
         <TextView
             android:id="@+id/head_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="日程编辑"
+            android:text="@string/add_event_label"
             android:textColor="#000000"
             android:textSize="17sp" />
 
@@ -42,32 +43,29 @@
             android:background="@drawable/head_button"
             android:gravity="center"
             android:onClick="done"
-            android:text="確定" />
+            android:text="@string/done" />
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
-        android:layout_marginTop="40dp" >
+        android:layout_marginTop="40dp"
+        android:orientation="vertical" >
 
         <TextView
             android:id="@+id/textView1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
             android:layout_marginLeft="10dp"
-            android:text="從"
+            android:text="@string/from"
             android:textSize="16sp" />
 
         <LinearLayout
             android:id="@+id/from"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView1"
-            android:layout_below="@+id/textView1"
             android:orientation="horizontal" >
 
             <Button
@@ -95,18 +93,15 @@
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@+id/from"
             android:layout_margin="10dp"
-            android:text="到"
-            android:textSize="16sp" />
+            android:text="@string/to"
+            android:textSize="16sp"
+            tools:ignore="ObsoleteLayoutParam" />
 
         <LinearLayout
             android:id="@+id/to"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/textView1"
-            android:layout_below="@+id/textView2"
             android:orientation="horizontal" >
 
             <Button

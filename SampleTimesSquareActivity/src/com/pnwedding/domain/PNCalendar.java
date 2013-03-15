@@ -101,12 +101,12 @@ public class PNCalendar {
 		//CalendarContract.Events.CALENDAR_ID != 1 表示只查询未被删除的事件
 		Cursor cur = context.getContentResolver().query(
 				Events.CONTENT_URI,
-				new String[] { "_id", "title", "dtstart", "dtend" },
+				new String[] { "_id", "title", "dtstart", "dtend","description" },
 				CalendarContract.Events.CALENDAR_ID + " = ?" + " AND "
 						+ CalendarContract.Events.DELETED + " != ?",
 				new String[] { String.valueOf(this._id), "1" }, "dtstart ASC");
 		
-		String[] l = cur.getColumnNames();
+//		String[] l = cur.getColumnNames();
 		
 		while (cur.moveToNext()) {
 			PNEvent pnEvent = new PNEvent();
@@ -115,6 +115,7 @@ public class PNCalendar {
 			pnEvent.dtstart = cur.getLong(cur.getColumnIndex("dtstart"));
 			pnEvent.dtend = cur.getLong(cur.getColumnIndex("dtend"));
 			pnEvent._id = cur.getLong(cur.getColumnIndex("_id"));
+			pnEvent.description = cur.getString(cur.getColumnIndex("description"));
 			events.add(pnEvent);
 		}
 		cur.close();

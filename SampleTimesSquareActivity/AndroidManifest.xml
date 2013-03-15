@@ -2,11 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.squareup.timessquare.sample"
     android:versionCode="1"
-    android:versionName="1.0">
+    android:versionName="1.0" xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk
         android:minSdkVersion="4"
-        android:targetSdkVersion="16" />
+        android:targetSdkVersion="16" tools:ignore="OldTargetApi"/>
     
     <uses-permission android:name="android.permission.WRITE_CALENDAR"/>
     <uses-permission android:name="android.permission.READ_CALENDAR"/>
@@ -15,7 +15,7 @@
         android:label="TimesSquare Sample"
         android:icon="@drawable/icon"
         android:debuggable="true"
-        >
+        android:allowBackup="true" tools:ignore="HardcodedDebugMode">
         <activity
             android:name=".CalendarPage"
             android:configChanges="orientation|screenSize|keyboardHidden"

@@ -2,7 +2,6 @@ package com.squareup.timessquare;
 
 import com.squareup.timessquare.sample.BuildConfig;
 
-import android.util.Log;
 
 /** Log utility class to handle the log tag and DEBUG-only logging. */
 final class Logr {

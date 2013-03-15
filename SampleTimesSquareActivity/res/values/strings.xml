@@ -7,5 +7,18 @@
   <string name="month_name_format">MMMM yyyy</string>
   <string name="previous">&lt;</string>
   <string name="next">&gt;</string>
+  <string name="add_event">新增活動</string>
+  <string name="add_event_plus">"   +  "</string>
+  <string name="back">返回</string>
+  <string name="add_event_label">日程编辑</string>
+  <string name="done">確定</string>
+  <string name="from">從</string>
+  <string name="to">到</string>
+  <string name="event_title">主題:</string>
+  <string name="event_date">日期:</string>
+  <string name="event_reminder">提醒:</string>
+  <string name="noth">無</string>
+  <string name="Attendees">參與者:</string>
+  <string name="description">描述:</string>
   
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F9E0D9"
@@ -16,17 +17,17 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
-            android:paddingLeft="10dp"
             android:background="#00ffffff"
-            android:text="@string/previous"
-            />
+            android:paddingLeft="10dp"
+            android:text="@string/previous" />
 
         <TextView
             android:id="@+id/title"
             style="@style/CalendarTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true" />
+            android:layout_centerInParent="true"
+            tools:ignore="SelectableText" />
 
         <Button
             android:id="@+id/next"
@@ -34,10 +35,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:paddingRight="10dp"
             android:background="#00ffffff"
-            android:text="@string/next"
-            />
+            android:paddingRight="10dp"
+            android:text="@string/next" />
     </RelativeLayout>
 
     <LinearLayout
@@ -90,41 +90,40 @@
 
     <RelativeLayout
         android:id="@+id/bottom"
-        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
         <RelativeLayout
             android:id="@+id/addEvent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" >
 
-        <TextView
-            style="@style/CalendarTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:paddingLeft="10dp"
-            android:text="新增活動" />
+            <TextView
+                style="@style/CalendarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:paddingLeft="10dp"
+                android:text="@string/add_event" />
 
-        <TextView
-            android:id="@+id/add_textview"
-            style="@style/CalendarTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:paddingRight="10dp"
-            android:text="   +  " />
+            <TextView
+                android:id="@+id/add_textview"
+                style="@style/CalendarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:paddingRight="10dp"
+                android:text="@string/add_event_plus" />
         </RelativeLayout>
-        
-        <ListView 
+
+        <ListView
             android:id="@+id/listView"
-            android:paddingTop="10dp"
-            android:layout_below="@+id/addEvent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            ></ListView>
-        
+            android:layout_below="@+id/addEvent"
+            android:paddingTop="10dp" >
+        </ListView>
     </RelativeLayout>
 
 </LinearLayout>

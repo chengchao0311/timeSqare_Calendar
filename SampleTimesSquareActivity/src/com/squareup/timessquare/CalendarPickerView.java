@@ -57,9 +57,11 @@ public class CalendarPickerView extends ViewPager {
 	public int selectedIndex;
 	public ToDoListCallBack toDoListCallBack;
 
+	@SuppressLint("SimpleDateFormat")
 	public CalendarPickerView(Context context, AttributeSet attrs) {
 		super(context, attrs);
 
+		@SuppressWarnings("unused")
 		final int bg = context.getResources().getColor(R.color.calendar_bg);
 		monthNameFormat = new SimpleDateFormat(
 				context.getString(R.string.month_name_format));
@@ -216,11 +218,11 @@ public class CalendarPickerView extends ViewPager {
 				// Update the adapter.
 				if (cell.isHasEvent()) {
 					if (toDoListCallBack != null) {
-						toDoListCallBack.showEventsOfTheDay(cell.getEvents());
+						toDoListCallBack.showEventsForTheDay(cell.getEvents());
 					}
 				} else {
 					if (toDoListCallBack != null) {
-						toDoListCallBack.showEventsOfTheDay(null);
+						toDoListCallBack.showEventsForTheDay(null);
 					}
 				}
 				adapter.notifyDataSetChanged();

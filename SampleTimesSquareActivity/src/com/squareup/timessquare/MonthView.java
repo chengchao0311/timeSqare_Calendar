@@ -5,11 +5,9 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckedTextView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.List;
@@ -20,8 +18,6 @@ public class MonthView extends LinearLayout {
 	// private TextView title;
 	private CalendarGridView grid;
 	private Listener listener;
-	private TextView title;
-
 	public static MonthView create(ViewGroup parent, LayoutInflater inflater,
 			DateFormat weekdayNameFormat, Listener listener, Calendar today) {
 		final MonthView view = (MonthView) inflater.inflate(R.layout.month,
@@ -29,7 +25,7 @@ public class MonthView extends LinearLayout {
 
 		final int originalDayOfWeek = today.get(Calendar.DAY_OF_WEEK);
 
-		final CalendarRowView headerRow = (CalendarRowView) view.grid
+		view.grid
 				.getChildAt(0);
 		for (int c = Calendar.SUNDAY; c <= Calendar.SATURDAY; c++) {
 			today.set(Calendar.DAY_OF_WEEK, c);

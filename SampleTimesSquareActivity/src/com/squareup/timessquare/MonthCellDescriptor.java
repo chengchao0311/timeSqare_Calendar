@@ -4,8 +4,6 @@ package com.squareup.timessquare;
 import java.util.ArrayList;
 import java.util.Date;
 
-import android.provider.ContactsContract.CommonDataKinds.Event;
-
 import com.pnwedding.domain.PNEvent;
 
 /** Describes the state of a particular date cell in a {@link MonthView}. */

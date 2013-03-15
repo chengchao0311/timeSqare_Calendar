@@ -22,14 +22,14 @@
             android:background="@drawable/head_button"
             android:gravity="center"
             android:onClick="back"
-            android:text="返回" />
+            android:text="@string/back" />
 
         <TextView
             android:id="@+id/head_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="日程编辑"
+            android:text="@string/add_event_label"
             android:textColor="#000000"
             android:textSize="17sp" />
 
@@ -42,7 +42,7 @@
             android:background="@drawable/head_button"
             android:gravity="center"
             android:onClick="done"
-            android:text="確定" />
+            android:text="@string/done" />
     </RelativeLayout>
 
     <LinearLayout

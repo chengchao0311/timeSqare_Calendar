@@ -209,7 +209,7 @@ public class ChooseDate extends Activity {
 	}
 
 	public void done(View v) {
-		setResult(1113);
+		setResult(CalendarPage.EVENTDETAIL_CHOOSEDATE);
 		EventDetail.event.dtstart = fromDateCal.getTimeInMillis();
 		EventDetail.event.dtend = toDateCal.getTimeInMillis();
 		finish();

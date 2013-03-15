@@ -41,7 +41,7 @@ public class ChooseReminder extends Activity implements OnItemClickListener {
 	}
 	
 	public void done(View view){
-		setResult(1114);
+		setResult(CalendarPage.EVENTDETAIL_CHOOSEREMINDER);
 		EventDetail.reminderTimeDescriptor = reminders.get(reminderAdapter.selectedPos);
 		finish();
 	}
