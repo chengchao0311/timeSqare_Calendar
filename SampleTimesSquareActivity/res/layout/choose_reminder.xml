@@ -45,10 +45,33 @@
             android:text="確定" />
     </RelativeLayout>
 
-   <ListView 
-       android:id="@+id/listview"
-       android:layout_width="match_parent"
-       android:layout_height="wrap_content" 
-       ></ListView> 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/head_layout"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="30dp"
+        android:background="@drawable/choose_reminder_listview_layout" 
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="#DCDCDC"
+            >
+            <ListView
+                android:id="@+id/listview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="1dp"
+                android:background="#ffffff"
+                android:divider="#DCDCDC"
+                android:dividerHeight="1dp" >
+            </ListView>
+        
+        </LinearLayout>
+    </LinearLayout>
 
 </RelativeLayout>

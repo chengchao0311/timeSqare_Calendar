@@ -38,7 +38,7 @@ public class ChooseDate extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.date_choose);
+		setContentView(R.layout.choose_date);
 
 		fromDateCal = Calendar.getInstance();
 		toDateCal = Calendar.getInstance();

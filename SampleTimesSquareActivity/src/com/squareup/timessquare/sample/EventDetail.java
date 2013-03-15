@@ -3,8 +3,6 @@ package com.squareup.timessquare.sample;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import com.pnwedding.domain.PNEvent;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -13,11 +11,17 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 
+import com.pnwedding.domain.PNEvent;
+import com.pnwedding.domain.ReminderTimeDescriptor;
+
 public class EventDetail extends Activity {
 	@SuppressLint("SimpleDateFormat")
 	public static PNEvent event;
+	public static ReminderTimeDescriptor reminderTimeDescriptor;
+	
 	private SimpleDateFormat simpleDateFormat;
 	
+	@SuppressLint("SimpleDateFormat")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -50,6 +54,17 @@ public class EventDetail extends Activity {
 				EventDetail.this.startActivityForResult(intent,1112);
 			}
 		});
+		
+		//選擇提醒被點擊
+		findViewById(R.id.reminder).setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent();
+				intent.setClass(EventDetail.this, ChooseReminder.class);
+				EventDetail.this.startActivityForResult(intent,1114);
+			}
+		});
 	}
 	
 	public void back(View view) {
@@ -72,6 +87,10 @@ public class EventDetail extends Activity {
 			fromCal.setTimeInMillis(event.dtstart);
 			toCal.setTimeInMillis(event.dtend);
 			v.setText("  "+ simpleDateFormat.format(fromCal.getTime()) + " 到 " + simpleDateFormat.format(toCal.getTime()));
+		}
+		if (resultCode == 1114) {
+			TextView remindeText = (TextView) findViewById(R.id.reminder_text);
+			remindeText.setText(EventDetail.reminderTimeDescriptor.text);
 		}
 	}
 	

@@ -1,4 +1,4 @@
-package com.squareup.timessquare;
+package com.squareup.timessquare.sample;
 
 import java.util.ArrayList;
 

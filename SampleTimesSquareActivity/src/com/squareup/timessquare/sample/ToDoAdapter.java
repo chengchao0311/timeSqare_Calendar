@@ -1,4 +1,4 @@
-package com.squareup.timessquare;
+package com.squareup.timessquare.sample;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class ToDoAdapter extends ArrayAdapter<PNEvent> {
 	
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		View view = ((Activity)context).getLayoutInflater().inflate(R.layout.to_do_list,parent,false);
+		View view = ((Activity)context).getLayoutInflater().inflate(R.layout.to_do_list_item,parent,false);
 		TextView textView = (TextView) view.findViewById(R.id.to_do_item);
 		textView.setText(list.get(position).title);
 		return view;

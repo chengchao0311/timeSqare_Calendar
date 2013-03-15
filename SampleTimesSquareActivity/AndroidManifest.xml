@@ -19,17 +19,20 @@
         <activity
             android:name=".CalendarPage"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            >
-            <intent-filter>
+            ><intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
         </activity>
         
         <activity android:name="com.squareup.timessquare.sample.EventDetail">
         </activity>
         <activity android:name="ChooseDate">
             
+        </activity>
+        <activity android:name="ChooseReminder">
         </activity>
     </application>
 </manifest>

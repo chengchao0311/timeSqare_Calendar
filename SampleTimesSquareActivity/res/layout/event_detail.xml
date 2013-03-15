@@ -42,93 +42,113 @@
             android:text="儲存" />
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/wedding_name_label"
-        style="@style/event_detail_input_area"
-        android:layout_marginBottom="10dp"
-        android:text="Alva Chan的婚禮" />
-
-    <RelativeLayout
-        style="@style/event_detail_input_area"
-        android:layout_marginTop="10dp" >
-
-        <TextView
-            android:id="@+id/title_text"
-            style="@style/event_detail_input_area_label"
-            android:layout_alignParentLeft="true"
-            android:text="主題:" />
-
-        <EditText
-            android:id="@+id/title_edit"
-            style="@style/event_detail_input_area_editText"
-            android:layout_toRightOf="@+id/title_text"
-            android:inputType="text"
-            android:singleLine="true" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/choose_date_area"
-        style="@style/event_detail_input_area" >
-
-        <TextView
-            android:id="@+id/date_text"
-            style="@style/event_detail_input_area_label"
-            android:layout_alignParentLeft="true"
-            android:text="日期:" />
-
-        <TextView
-            android:id="@+id/date_edit"
-            style="@style/event_detail_input_area_editText"
-            android:layout_toRightOf="@+id/date_text"
-            android:paddingTop="4dp"
-            android:text="19/02/2013" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/reminder"
-        style="@style/event_detail_input_area" >
-
-        <TextView
-            android:id="@+id/reminder_text"
-            style="@style/event_detail_input_area_label"
-            android:layout_alignParentLeft="true"
-            android:text="提醒:" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/attendees"
-        style="@style/event_detail_input_area" >
-
-        <TextView
-            android:id="@+id/attendees_text"
-            style="@style/event_detail_input_area_label"
-            android:layout_alignParentLeft="true"
-            android:text="參與者:" />
-    </RelativeLayout>
-
     <LinearLayout
-        android:id="@+id/description"
-        style="@style/event_detail_input_area"
+        android:layout_margin="20dp"
         android:orientation="vertical"
-        android:layout_height="100dp" >
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" >
 
         <TextView
-            android:id="@+id/description_text"
-            style="@style/event_detail_input_area_label"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingBottom="0dp"
-            android:text="描述:" />
+            android:id="@+id/wedding_name_label"
+            style="@style/event_detail_input_area"
+            android:layout_marginBottom="10dp"
+            android:text="Alva Chan的婚禮" />
+
+        <RelativeLayout
+            style="@style/event_detail_input_area"
+            android:layout_marginTop="10dp" >
+
+            <TextView
+                android:id="@+id/title_text"
+                style="@style/event_detail_input_area_label"
+                android:layout_alignParentLeft="true"
+                android:text="主題:" />
+
+            <EditText
+                android:id="@+id/title_edit"
+                style="@style/event_detail_input_area_editText"
+                android:layout_toRightOf="@+id/title_text"
+                android:inputType="text"
+                android:gravity="center_vertical"
+                android:background="#00ffffff"
+                android:singleLine="true" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/choose_date_area"
+            style="@style/event_detail_input_area" >
+
+            <TextView
+                android:id="@+id/date_text"
+                style="@style/event_detail_input_area_label"
+                android:layout_alignParentLeft="true"
+                android:text="日期:" />
+
+            <TextView
+                android:id="@+id/date_edit"
+                style="@style/event_detail_input_area_editText"
+                android:layout_toRightOf="@+id/date_text"
+                android:gravity="center"
+                android:background="#00ffffff"
+                android:paddingTop="4dp"
+                android:text="19/02/2013" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/reminder"
+            style="@style/event_detail_input_area" >
+
+            <TextView
+                android:id="@+id/reminder_tips"
+                style="@style/event_detail_input_area_label"
+                android:layout_alignParentLeft="true"
+                android:text="提醒:" />
+
+            <TextView
+                android:id="@+id/reminder_text"
+                style="@style/event_detail_input_area_editText"
+                android:layout_toRightOf="@+id/reminder_tips"
+                android:gravity="center"
+                android:background="#00ffffff"
+                android:paddingTop="4dp"
+                android:text="無" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/attendees"
+            style="@style/event_detail_input_area" >
+
+            <TextView
+                android:id="@+id/attendees_text"
+                style="@style/event_detail_input_area_label"
+                android:layout_alignParentLeft="true"
+                android:text="參與者:" />
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/description"
+            style="@style/event_detail_input_area"
+            android:layout_height="100dp"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/description_text"
+                style="@style/event_detail_input_area_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="0dp"
+                android:text="描述:" />
 
             <EditText
                 android:id="@+id/editText1"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:ems="10"
                 android:background="@drawable/input_area_edit"
+                android:ems="10"
                 android:inputType="textMultiLine"
                 android:textColor="#000000" >
             </EditText>
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

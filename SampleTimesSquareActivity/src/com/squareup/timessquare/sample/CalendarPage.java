@@ -29,8 +29,6 @@ import com.pnwedding.domain.PNCalendar;
 import com.pnwedding.domain.PNEvent;
 import com.squareup.timessquare.CalendarPickerView;
 import com.squareup.timessquare.CalendarRowView;
-import com.squareup.timessquare.ToDoAdapter;
-import com.squareup.timessquare.ToDoListCallBack;
 
 public class CalendarPage extends FragmentActivity implements
 		OnPageChangeListener, ToDoListCallBack {
@@ -102,7 +100,7 @@ public class CalendarPage extends FragmentActivity implements
 		events = pnCalendar.queryEventsFromCalendar(this);
 		oneDayEvents = new ArrayList<PNEvent>();//第一次先创建一个空的容器
 		
-		toDoAdapter = new ToDoAdapter(this, R.layout.to_do_list, R.id.to_do_item, oneDayEvents);
+		toDoAdapter = new ToDoAdapter(this, R.layout.to_do_list_item, R.id.to_do_item, oneDayEvents);
 		listView.setAdapter(toDoAdapter);
 	
 		//开始初始化Calendar
