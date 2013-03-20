@@ -7,15 +7,16 @@ import java.util.Date;
 import com.pnwedding.domain.PNEvent;
 
 /** Describes the state of a particular date cell in a {@link MonthView}. */
-class MonthCellDescriptor {
+public class MonthCellDescriptor {
 	private final Date date;
 	private final int value;
 	private final boolean isCurrentMonth;
 	private boolean isSelected;
 	private final boolean isToday;
 	private final boolean isSelectable;
-	private final boolean hasEvent;
+	public boolean hasEvent;
 	private ArrayList<PNEvent> events;
+	
 
 	MonthCellDescriptor(Date date, boolean currentMonth, boolean selectable,
 			boolean selected, boolean hasEvent, boolean today, int value, ArrayList<PNEvent> events) {
@@ -28,8 +29,7 @@ class MonthCellDescriptor {
 		this.value = value;
 		this.events = events;
 	}
-	
-	
+
 	public Date getDate() {
 		return date;
 	}

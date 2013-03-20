@@ -40,9 +40,10 @@
             android:layout_height="match_parent"
             android:layout_alignParentRight="true"
             android:layout_margin="7dp"
-            android:background="@drawable/head_button"
+            android:background="@drawable/head_button_unclicked"
             android:gravity="center"
             android:onClick="done"
+            android:clickable="false"
             android:text="@string/done" />
     </RelativeLayout>
 

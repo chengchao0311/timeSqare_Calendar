@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import android.annotation.SuppressLint;
@@ -26,7 +27,6 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.widget.Toast;
-
 import com.pnwedding.domain.PNEvent;
 import com.squareup.timessquare.sample.R;
 import com.squareup.timessquare.sample.ToDoListCallBack;
@@ -53,6 +53,7 @@ public class CalendarPickerView extends ViewPager {
 	private final Calendar maxCal = Calendar.getInstance();
 	private final Calendar monthCounter = Calendar.getInstance();
 	private ArrayList<PNEvent> events;
+	public HashMap<Long, Integer[]> indexHelper = new HashMap<Long, Integer[]>();
 	private final MonthView.Listener listener = new CellClickedListener();
 	public int selectedIndex;
 	public ToDoListCallBack toDoListCallBack;
@@ -145,7 +146,8 @@ public class CalendarPickerView extends ViewPager {
 			MonthDescriptor month = new MonthDescriptor(
 					monthCounter.get(MONTH), monthCounter.get(YEAR),
 					monthNameFormat.format(monthCounter.getTime()));
-			cells.add(getMonthCells(month, monthCounter, selectedCal));
+			cells.add(getMonthCells(month, monthCounter, selectedCal,
+					months.size()));// month size 本月加入后的position
 			Logr.d("Adding month %s", month);
 			if (selectedMonth == month.getMonth()
 					&& selectedYear == month.getYear()) {
@@ -208,13 +210,28 @@ public class CalendarPickerView extends ViewPager {
 				Toast.makeText(getContext(), errMessage, Toast.LENGTH_SHORT)
 						.show();
 			} else {
+				// 重用之前的ArrayList
+				ArrayList<PNEvent> eventsForTheDay = null;
+				ArrayList<PNEvent> eventsOld = selectedCell.getEvents();
+				if (eventsOld != null) {
+					eventsForTheDay = selectedCell.getEvents();
+					eventsForTheDay.clear();
+				} else {
+					eventsForTheDay = new ArrayList<PNEvent>();
+				}
 				// De-select the currently-selected cell.
 				selectedCell.setSelected(false);
+
 				// Select the new cell.
 				selectedCell = cell;
 				selectedCell.setSelected(true);
 				// Track the currently selected date value.
-				selectedCal.setTime(cell.getDate());
+				Date date2 = cell.getDate();
+				selectedCal.setTime(date2);
+				if (selectedCell.hasEvent) {
+					selectedCell.setEvents(getEventsForTheDay(date2.getTime(),
+							eventsForTheDay));
+				}
 				// Update the adapter.
 				if (cell.isHasEvent()) {
 					if (toDoListCallBack != null) {
@@ -257,7 +274,7 @@ public class CalendarPickerView extends ViewPager {
 		@Override
 		public Fragment getItem(int position) {
 			return MonthFragment.create(months, cells, listener,
-					weekDateFormat, today, position);
+					weekDateFormat, today, position, events);
 		}
 
 		@Override
@@ -273,7 +290,7 @@ public class CalendarPickerView extends ViewPager {
 	}
 
 	List<List<MonthCellDescriptor>> getMonthCells(MonthDescriptor month,
-			Calendar startCal, Calendar selectedDate) {
+			Calendar startCal, Calendar selectedDate, int monthIndex) {
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(startCal.getTime());
 		List<List<MonthCellDescriptor>> cells = new ArrayList<List<MonthCellDescriptor>>();
@@ -286,8 +303,10 @@ public class CalendarPickerView extends ViewPager {
 			Logr.d("Building week row starting at %s", cal.getTime());
 			List<MonthCellDescriptor> weekCells = new ArrayList<MonthCellDescriptor>();
 			cells.add(weekCells);
+			int weekIndex = cells.size() - 1;// 表示week的位置
 			Calendar tempCal = null;
 			for (int c = 0; c < 7; c++) {
+
 				Date date = cal.getTime();
 				boolean isCurrentMonth = cal.get(MONTH) == month.getMonth();
 				boolean isSelected = isCurrentMonth
@@ -298,41 +317,14 @@ public class CalendarPickerView extends ViewPager {
 				int value = cal.get(DAY_OF_MONTH);
 				boolean hasEvent = false;
 
-				for (int i = 0; i < events.size(); i++) {
-					if (tempCal == null) {
-						tempCal = Calendar.getInstance();
-					}
-					tempCal.setTimeInMillis(events.get(i).dtstart);
-					
-					if (eventTimeInOneDay(events.get(i))) {//当前事件的开始时间和结束时间在同一天内
-						if (sameDate(cal, tempCal)) {//当前天和event是否是同一天
-							hasEvent = true;
-							break;
-						} else {
-							hasEvent = false;
-						}
-					} else {// 开始和结束时间不在同一天内 
-						if (betweenDates(cal, events.get(i).dtstart, events.get(i).dtend)) {
-							hasEvent = true;
-							break;
-						} else {
-							hasEvent = false;
-						}
-					}
-				}
 				MonthCellDescriptor cell = null;
-				if (hasEvent) {
-					ArrayList<PNEvent> sameDayEvents = getEventsOfTheDay(cal
-							.getTimeInMillis());
-					cell = new MonthCellDescriptor(date, isCurrentMonth,
-							isSelectable, isSelected, hasEvent, isToday, value,
-							sameDayEvents);
-				} else {
-					cell = new MonthCellDescriptor(date, isCurrentMonth,
-							isSelectable, isSelected, hasEvent, isToday, value,
-							null);
-				}
 
+				cell = new MonthCellDescriptor(date, isCurrentMonth,
+						isSelectable, isSelected, hasEvent, isToday, value,
+						null);
+				// }
+				indexHelper.put(cell.getDate().getTime(), new Integer[] {
+						monthIndex, weekIndex, c });// 放入位置
 				if (isSelected) {
 					selectedCell = cell;
 				}
@@ -342,28 +334,31 @@ public class CalendarPickerView extends ViewPager {
 		}
 		return cells;
 	}
-	//比较时间再区间内
+
+	// *********************************************************//
+	// *********************與event相關的方法塊********************//
+	// *********************************************************//
 	public boolean checkHasEvents(Calendar cal, long startMill, long endMill) {
-		if ((cal.getTimeInMillis() >= startMill) && (cal.getTimeInMillis() <= endMill)) {
+		if ((cal.getTimeInMillis() >= startMill)
+				&& (cal.getTimeInMillis() <= endMill)) {
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	public boolean eventTimeInOneDay(PNEvent pnEvent){
+	public boolean eventTimeInOneDay(PNEvent pnEvent) {
 		Calendar aCal = Calendar.getInstance();
 		Calendar bCal = Calendar.getInstance();
 		aCal.setTimeInMillis(pnEvent.dtstart);
 		bCal.setTimeInMillis(pnEvent.dtend);
 		return sameDate(aCal, bCal);
 	}
-	
-	// 获得time 所在时间的所有event
-	private ArrayList<PNEvent> getEventsOfTheDay(long time) {
-		ArrayList<PNEvent> oneDayEvents = new ArrayList<PNEvent>();
+
+	private ArrayList<PNEvent> getEventsForTheDay(long time,
+			ArrayList<PNEvent> oneDayEvents) {
 		for (int i = 0; i < events.size(); i++) {
-			if (eventTimeInOneDay(events.get(i))) { 
+			if (eventTimeInOneDay(events.get(i))) {
 				Calendar currCal = Calendar.getInstance();
 				Calendar eventCal = Calendar.getInstance();
 				currCal.setTimeInMillis(time);
@@ -371,10 +366,11 @@ public class CalendarPickerView extends ViewPager {
 				if (sameDate(eventCal, currCal)) {
 					oneDayEvents.add(events.get(i));
 				}
-			}else {
+			} else {
 				Calendar cal = Calendar.getInstance();
 				cal.setTimeInMillis(time);
-				if (betweenDates(cal, events.get(i).dtstart, events.get(i).dtend)) { //时间的区间包含这一天
+				if (betweenDates(cal, events.get(i).dtstart,
+						events.get(i).dtend)) { // 时间的区间包含这一天
 					oneDayEvents.add(events.get(i));
 				}
 			}
@@ -382,13 +378,16 @@ public class CalendarPickerView extends ViewPager {
 		return oneDayEvents;
 	}
 
+	// *****************************************************************//
+	// ***********************有關時間比較的方法****************************//
+	// *****************************************************************//
 	public static boolean sameDate(Calendar cal, Calendar selectedDate) {
 		return cal.get(MONTH) == selectedDate.get(MONTH)
 				&& cal.get(YEAR) == selectedDate.get(YEAR)
 				&& cal.get(DAY_OF_MONTH) == selectedDate.get(DAY_OF_MONTH);
 	}
-	
-	private static boolean betweenDates(Calendar cal, long minCalLong,
+
+	public static boolean betweenDates(Calendar cal, long minCalLong,
 			long maxCalLong) {
 		final Date date = cal.getTime();
 		Calendar minCal = Calendar.getInstance();
@@ -397,8 +396,7 @@ public class CalendarPickerView extends ViewPager {
 		maxCal.setTimeInMillis(maxCalLong);
 		return betweenDates(date, minCal, maxCal);
 	}
-	
-	
+
 	private static boolean betweenDates(Calendar cal, Calendar minCal,
 			Calendar maxCal) {
 		final Date date = cal.getTime();
@@ -410,4 +408,43 @@ public class CalendarPickerView extends ViewPager {
 		return (date.equals(min) || date.after(min)) // >= minCal
 				&& date.before(maxCal.getTime()); // && < maxCal
 	}
+
+
+
+
+
+	// *****************************************************************//
+	// ***************************** 作廢方法****************************//
+	// *****************************************************************//
+	
+	
+	
+	// public ArrayList<MonthCellDescriptor> findMonthCellByEvent(PNEvent
+	// pnEvent) {
+	// ArrayList<MonthCellDescriptor> cellList = new
+	// ArrayList<MonthCellDescriptor>();
+	// // 當cell的date在event開始結束之間時就加入這個list
+	// // 1,event的開始結束時間再同一天的情況
+	// Calendar minCal = Calendar.getInstance();
+	// Calendar maxCal = Calendar.getInstance();
+	// minCal.setTimeInMillis(pnEvent.dtstart);
+	// maxCal.setTimeInMillis(pnEvent.dtend);
+	// if (sameDate(minCal, maxCal)) {
+	// setMidnight(minCal);
+	// Integer[] indexs = indexHelper.get(minCal.getTimeInMillis());
+	// if (indexs != null) {
+	// for (int i = 0; i < indexs.length; i++) {
+	// System.out.println("indexs" + "[" + i + "]" + "="
+	// + indexs[i]);
+	// }
+	// MonthCellDescriptor cell = cells.get(indexs[0]).get(indexs[1])
+	// .get(indexs[2]);
+	// cellList.add(cell);
+	// }
+	// } else {// 如果是跨幾天的情況
+	// // 暫時什麼都不做
+	// }
+	//
+	// return cellList;
+	// }
 }

@@ -20,5 +20,5 @@
   <string name="noth">無</string>
   <string name="Attendees">參與者:</string>
   <string name="description">描述:</string>
-  
+  <string name="new_event">新建事件</string>
 </resources>

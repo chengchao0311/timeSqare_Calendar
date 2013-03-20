@@ -11,6 +11,7 @@ import android.app.DatePickerDialog;
 import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
+import android.content.Intent;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.text.InputType;
@@ -33,13 +34,17 @@ public class ChooseDate extends Activity {
 	private Calendar toDateCal;
 	private Button toDate;
 	private Button toTime;
+	private long dtstart;
+	private long dtend;
+
+	private Button saveBtn;
 
 	@SuppressLint("SimpleDateFormat")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.choose_date);
-
+		// 初始化
 		fromDateCal = Calendar.getInstance();
 		toDateCal = Calendar.getInstance();
 
@@ -53,10 +58,18 @@ public class ChooseDate extends Activity {
 
 		toTime = (Button) findViewById(R.id.to_time);
 		toTime.setInputType(InputType.TYPE_NULL); // 取消弹出软键盘
-
-		if (EventDetail.event.dtend != 0 && EventDetail.event.dtstart !=0) {
-			fromDateCal.setTimeInMillis(EventDetail.event.dtstart);
-			toDateCal.setTimeInMillis(EventDetail.event.dtend);
+		
+		saveBtn = (Button) findViewById(R.id.save_button);
+		
+		// 獲取incoming數據
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			dtstart = extras.getLong("dstart");
+			dtend = extras.getLong("dtend");
+			if (dtstart != 0 && dtend != 0) {
+				fromDateCal.setTimeInMillis(dtstart);
+				toDateCal.setTimeInMillis(dtend);
+			}
 		}
 		
 		fromDate.setText(buildDateString(fromDateCal));
@@ -127,6 +140,15 @@ public class ChooseDate extends Activity {
 							}
 							toTime.setText(buildTimeString(toDateCal));
 						}
+						//時間是否改變，如果改變 儲存按鈕 才可以點擊
+						if ((dtstart != fromDateCal.getTimeInMillis()) || (dtend != toDateCal.getTimeInMillis())) {
+							saveBtn.setClickable(true);
+							saveBtn.setBackgroundColor(R.drawable.head_button);
+						}else {
+							saveBtn.setClickable(false);
+							saveBtn.setBackgroundColor(R.drawable.head_button_unclicked);
+						}
+							
 					}
 				}, buildHour, buildMinute, true);
 		timepicker.show();
@@ -188,6 +210,15 @@ public class ChooseDate extends Activity {
 							toDate.setText(buildDateString(toDateCal));
 							toTime.setText(buildTimeString(toDateCal));
 						}
+						
+						if ((dtstart != fromDateCal.getTimeInMillis()) || (dtend != toDateCal.getTimeInMillis())) {
+							saveBtn.setClickable(true);
+							saveBtn.setBackgroundColor(R.drawable.head_button);
+						}else {
+							saveBtn.setClickable(false);
+							saveBtn.setBackgroundColor(R.drawable.head_button_unclicked);
+						}
+							
 					}
 				}, buildYear, buildMonth, buildDate);
 		datePicker.show();
@@ -209,9 +240,11 @@ public class ChooseDate extends Activity {
 	}
 
 	public void done(View v) {
-		setResult(CalendarPage.EVENTDETAIL_CHOOSEDATE);
-		EventDetail.event.dtstart = fromDateCal.getTimeInMillis();
-		EventDetail.event.dtend = toDateCal.getTimeInMillis();
+		// 如果兩個時間都沒有改變 就直接返回
+		Intent intent = new Intent();
+		intent.putExtra("dtstart", fromDateCal.getTimeInMillis());
+		intent.putExtra("dtend", toDateCal.getTimeInMillis());
+		setResult(CalendarPage.EVENTDETAIL_CHOOSEDATE, intent);
 		finish();
 	}
 }
