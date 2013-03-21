@@ -80,6 +80,16 @@ public class PNEvent implements Parcelable{
 	public static Parcelable.Creator<PNEvent> getCreator() {
 		return CREATOR;
 	}
+	
+	
+	
+	@Override
+	public boolean equals(Object o) {
+		
+		return this._id == ((PNEvent)o)._id;
+	}
+	
+	
 	//------------------------------------------------------------------------
 	@SuppressLint("NewApi")
 	public PNReminder queryPNReminder(Context context){//本app 只返回一個Reminder

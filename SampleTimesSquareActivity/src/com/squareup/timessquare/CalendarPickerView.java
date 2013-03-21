@@ -358,20 +358,24 @@ public class CalendarPickerView extends ViewPager {
 	private ArrayList<PNEvent> getEventsForTheDay(long time,
 			ArrayList<PNEvent> oneDayEvents) {
 		for (int i = 0; i < events.size(); i++) {
-			if (eventTimeInOneDay(events.get(i))) {
+			PNEvent pnEvent = events.get(i);
+			if (oneDayEvents.contains(pnEvent)) {
+				continue;
+			}
+			if (eventTimeInOneDay(pnEvent)) {
 				Calendar currCal = Calendar.getInstance();
 				Calendar eventCal = Calendar.getInstance();
 				currCal.setTimeInMillis(time);
-				eventCal.setTimeInMillis(events.get(i).dtstart);
+				eventCal.setTimeInMillis(pnEvent.dtstart);
 				if (sameDate(eventCal, currCal)) {
-					oneDayEvents.add(events.get(i));
+					oneDayEvents.add(pnEvent);
 				}
 			} else {
 				Calendar cal = Calendar.getInstance();
 				cal.setTimeInMillis(time);
-				if (betweenDates(cal, events.get(i).dtstart,
-						events.get(i).dtend)) { // 时间的区间包含这一天
-					oneDayEvents.add(events.get(i));
+				if (betweenDates(cal, pnEvent.dtstart,
+						pnEvent.dtend)) { // 时间的区间包含这一天
+					oneDayEvents.add(pnEvent);
 				}
 			}
 		}

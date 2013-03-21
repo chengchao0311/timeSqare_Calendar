@@ -1,12 +1,8 @@
 package com.pnwedding.domain;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
-
 import android.annotation.SuppressLint;
 import android.content.AsyncQueryHandler;
 import android.content.ContentResolver;
@@ -22,10 +18,7 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.util.Log;
-
 import com.squareup.timessquare.CalendarPickerView;
-import com.squareup.timessquare.MonthCellDescriptor;
-import com.squareup.timessquare.sample.BuildConfig;
 public class PNCalendar implements Parcelable {
 
 	public long _id;
@@ -144,6 +137,7 @@ public class PNCalendar implements Parcelable {
 
 	@SuppressLint("NewApi")
 	public ArrayList<PNEvent> queryEventsFromCalendar(final Context context,final ArrayList<PNEvent> events,final CalendarPickerView calendar, final Handler hadnler) {
+		events.clear();//先清空之前的事件
 		// CalendarContract.Events.CALENDAR_ID != 1 表示只查询未被删除的事件
 		ContentResolver cr = context.getContentResolver();
 		AsyncQueryHandler queryHandler = new AsyncQueryHandler(context.getContentResolver()) {

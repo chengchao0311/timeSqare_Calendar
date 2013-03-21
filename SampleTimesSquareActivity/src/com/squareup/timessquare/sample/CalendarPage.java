@@ -9,7 +9,6 @@ import java.util.Map;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
@@ -21,15 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import com.pnwedding.domain.PNCalendar;
 import com.pnwedding.domain.PNEvent;
 import com.squareup.timessquare.CalendarPickerView;
 
 public class CalendarPage extends FragmentActivity implements
 		OnPageChangeListener, ToDoListCallBack {
-	public static boolean tag;
-	public static int aposition = 123456789;
 	// 請求碼和回響碼
 	public static int CALENDARPAGE_EVENTDETAIL_ADD_EMPTY = 1110;
 	public static int EVENTDETAIL_CHOOSEDATE = 1111;
@@ -51,13 +47,14 @@ public class CalendarPage extends FragmentActivity implements
 	private ArrayList<PNEvent> oneDayEvents;
 	private ToDoAdapter toDoAdapter;
 	private PNCalendar pnCalendar;
+	private Handler handler;
 
 	@SuppressLint({ "SimpleDateFormat", "NewApi" })
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.calendar_picker);
-
+		handler = new Handler();
 		// 初始化配置文件
 		appConfig = getSharedPreferences("app_config", MODE_PRIVATE);
 		Map<String, ?> all = appConfig.getAll();
@@ -92,12 +89,12 @@ public class CalendarPage extends FragmentActivity implements
 		} catch (IllegalAccessException e) {
 		} catch (NoSuchFieldException e) {
 		}
-		events = new ArrayList<PNEvent>();
+		events =  new ArrayList<PNEvent>();
 		
 		// 开始初始化Calendar
 		calendar.init(new Date(), startDate, targetDate.getTime(),
 				getSupportFragmentManager(), events);
-		pnCalendar.queryEventsFromCalendar(CalendarPage.this, events, calendar, new Handler());
+		pnCalendar.queryEventsFromCalendar(CalendarPage.this, events, calendar, handler);
 		calendar.setVerticalScrollBarEnabled(false);
 		calendar.setEnabled(false);
 		calendar.setOnPageChangeListener(this);
@@ -180,6 +177,7 @@ public class CalendarPage extends FragmentActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
+		pnCalendar.queryEventsFromCalendar(CalendarPage.this, events, calendar, handler);
 		calendar.getAdapter().notifyDataSetChanged();
 	}
 	

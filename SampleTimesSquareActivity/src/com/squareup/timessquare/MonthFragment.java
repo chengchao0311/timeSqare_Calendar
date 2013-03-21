@@ -48,9 +48,6 @@ public class MonthFragment extends Fragment {
 
 		MonthView monthView = MonthView.create(container, inflater, weekdayNameFormat,
 				listener, today);
-		if (BuildConfig.DEBUG) {
-			
-		}
 		monthView.init(months.get(position), cells.get(position),events);
 		return monthView;
 	}
