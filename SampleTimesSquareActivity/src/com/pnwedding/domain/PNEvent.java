@@ -85,7 +85,6 @@ public class PNEvent implements Parcelable{
 	
 	@Override
 	public boolean equals(Object o) {
-		
 		return this._id == ((PNEvent)o)._id;
 	}
 	

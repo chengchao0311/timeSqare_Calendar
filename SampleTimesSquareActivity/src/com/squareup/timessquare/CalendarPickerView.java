@@ -26,17 +26,13 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.Toast;
 import com.pnwedding.domain.PNEvent;
+import com.squareup.timessquare.sample.BuildConfig;
 import com.squareup.timessquare.sample.R;
 import com.squareup.timessquare.sample.ToDoListCallBack;
 
-/**
- * Android component to allow picking a date from a calendar view (a list of
- * months). Must be initialized after inflation with
- * {@link #init(java.util.Date, java.util.Date, java.util.Date)}. The currently
- * selected date can be retrieved with {@link #getSelectedDate()}.
- */
 public class CalendarPickerView extends ViewPager {
 	private CalendarPickerView.MonthAdapter adapter;
 	private final DateFormat monthNameFormat;
@@ -46,7 +42,7 @@ public class CalendarPickerView extends ViewPager {
 	public final List<List<List<MonthCellDescriptor>>> cells = new ArrayList<List<List<MonthCellDescriptor>>>();
 	public int monthView1Height;
 
-	private MonthCellDescriptor selectedCell;
+	public MonthCellDescriptor selectedCell;
 	final Calendar today = Calendar.getInstance();
 	private final Calendar selectedCal = Calendar.getInstance();
 	private final Calendar minCal = Calendar.getInstance();
@@ -161,13 +157,13 @@ public class CalendarPickerView extends ViewPager {
 			scrollToSelectedMonth(selectedIndex);
 		}
 	}
-
-	private void scrollToSelectedMonth(final int selectedIndex) {
+	
+	public void scrollToSelectedMonth(final int selectedIndex) {
 		post(new Runnable() {
 			@SuppressLint("NewApi")
 			@Override
 			public void run() {
-				setCurrentItem(selectedIndex);
+				setCurrentItem(selectedIndex, true);
 			}
 		});
 	}
@@ -192,7 +188,7 @@ public class CalendarPickerView extends ViewPager {
 	}
 
 	/** Clears out the hours/minutes/seconds/millis of a Calendar. */
-	private static void setMidnight(Calendar cal) {
+	public static void setMidnight(Calendar cal) {
 		cal.set(HOUR_OF_DAY, 0);
 		cal.set(MINUTE, 0);
 		cal.set(SECOND, 0);
@@ -210,39 +206,14 @@ public class CalendarPickerView extends ViewPager {
 				Toast.makeText(getContext(), errMessage, Toast.LENGTH_SHORT)
 						.show();
 			} else {
-				// 重用之前的ArrayList
-				ArrayList<PNEvent> eventsForTheDay = null;
-				ArrayList<PNEvent> eventsOld = selectedCell.getEvents();
-				if (eventsOld != null) {
-					eventsForTheDay = selectedCell.getEvents();
-					eventsForTheDay.clear();
-				} else {
-					eventsForTheDay = new ArrayList<PNEvent>();
-				}
-				// De-select the currently-selected cell.
-				selectedCell.setSelected(false);
-
-				// Select the new cell.
-				selectedCell = cell;
-				selectedCell.setSelected(true);
-				// Track the currently selected date value.
-				Date date2 = cell.getDate();
-				selectedCal.setTime(date2);
-				if (selectedCell.hasEvent) {
-					selectedCell.setEvents(getEventsForTheDay(date2.getTime(),
-							eventsForTheDay));
-				}
-				// Update the adapter.
-				if (cell.isHasEvent()) {
-					if (toDoListCallBack != null) {
-						toDoListCallBack.showEventsForTheDay(cell.getEvents());
-					}
-				} else {
-					if (toDoListCallBack != null) {
-						toDoListCallBack.showEventsForTheDay(null);
-					}
-				}
+				setSelectedCell(cell);
 				adapter.notifyDataSetChanged();
+				// 刷新toDoList
+				if (cell.isHasEvent()) {
+					toDoListCallBack.showEventsForTheDay(true);
+				} else {
+					toDoListCallBack.clearAndrefresh();
+				}
 			}
 		}
 	}
@@ -291,6 +262,8 @@ public class CalendarPickerView extends ViewPager {
 
 	List<List<MonthCellDescriptor>> getMonthCells(MonthDescriptor month,
 			Calendar startCal, Calendar selectedDate, int monthIndex) {
+//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy MM dd HH mm ss");
+		
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(startCal.getTime());
 		List<List<MonthCellDescriptor>> cells = new ArrayList<List<MonthCellDescriptor>>();
@@ -304,9 +277,7 @@ public class CalendarPickerView extends ViewPager {
 			List<MonthCellDescriptor> weekCells = new ArrayList<MonthCellDescriptor>();
 			cells.add(weekCells);
 			int weekIndex = cells.size() - 1;// 表示week的位置
-			Calendar tempCal = null;
 			for (int c = 0; c < 7; c++) {
-
 				Date date = cal.getTime();
 				boolean isCurrentMonth = cal.get(MONTH) == month.getMonth();
 				boolean isSelected = isCurrentMonth
@@ -316,15 +287,18 @@ public class CalendarPickerView extends ViewPager {
 				boolean isToday = sameDate(cal, today);
 				int value = cal.get(DAY_OF_MONTH);
 				boolean hasEvent = false;
-
 				MonthCellDescriptor cell = null;
-
 				cell = new MonthCellDescriptor(date, isCurrentMonth,
-						isSelectable, isSelected, hasEvent, isToday, value,
-						null);
-				// }
-				indexHelper.put(cell.getDate().getTime(), new Integer[] {
-						monthIndex, weekIndex, c });// 放入位置
+						isSelectable, isSelected, hasEvent, isToday, value);
+				//為cell 設置索引 
+				cell.setMonthIndex(monthIndex);
+				cell.setWeekIndex(weekIndex);
+				cell.setDayIndex(c);
+				if (isSelectable) {
+					indexHelper.put(cell.getDate().getTime(), new Integer[] {
+						monthIndex, weekIndex, c });
+				}
+//				Log.e("cell time", simpleDateFormat.format(cell.getDate()));
 				if (isSelected) {
 					selectedCell = cell;
 				}
@@ -335,52 +309,7 @@ public class CalendarPickerView extends ViewPager {
 		return cells;
 	}
 
-	// *********************************************************//
-	// *********************與event相關的方法塊********************//
-	// *********************************************************//
-	public boolean checkHasEvents(Calendar cal, long startMill, long endMill) {
-		if ((cal.getTimeInMillis() >= startMill)
-				&& (cal.getTimeInMillis() <= endMill)) {
-			return true;
-		} else {
-			return false;
-		}
-	}
 
-	public boolean eventTimeInOneDay(PNEvent pnEvent) {
-		Calendar aCal = Calendar.getInstance();
-		Calendar bCal = Calendar.getInstance();
-		aCal.setTimeInMillis(pnEvent.dtstart);
-		bCal.setTimeInMillis(pnEvent.dtend);
-		return sameDate(aCal, bCal);
-	}
-
-	private ArrayList<PNEvent> getEventsForTheDay(long time,
-			ArrayList<PNEvent> oneDayEvents) {
-		for (int i = 0; i < events.size(); i++) {
-			PNEvent pnEvent = events.get(i);
-			if (oneDayEvents.contains(pnEvent)) {
-				continue;
-			}
-			if (eventTimeInOneDay(pnEvent)) {
-				Calendar currCal = Calendar.getInstance();
-				Calendar eventCal = Calendar.getInstance();
-				currCal.setTimeInMillis(time);
-				eventCal.setTimeInMillis(pnEvent.dtstart);
-				if (sameDate(eventCal, currCal)) {
-					oneDayEvents.add(pnEvent);
-				}
-			} else {
-				Calendar cal = Calendar.getInstance();
-				cal.setTimeInMillis(time);
-				if (betweenDates(cal, pnEvent.dtstart,
-						pnEvent.dtend)) { // 时间的区间包含这一天
-					oneDayEvents.add(pnEvent);
-				}
-			}
-		}
-		return oneDayEvents;
-	}
 
 	// *****************************************************************//
 	// ***********************有關時間比較的方法****************************//
@@ -414,8 +343,29 @@ public class CalendarPickerView extends ViewPager {
 	}
 
 
-
-
+	// *****************************************************************//
+	// ****************************操作cell方法***************************//
+	// *****************************************************************//
+	public MonthCellDescriptor getCellByDate(Date dayMidNight){
+		MonthCellDescriptor monthCellDescriptor  = null;
+		Integer[] indexs = indexHelper.get(dayMidNight.getTime());
+		if (indexs != null) {
+			monthCellDescriptor = cells.get(indexs[0]).get(indexs[1]).get(indexs[2]);
+		}
+		return monthCellDescriptor;
+	}
+	
+	public void setSelectedCell(MonthCellDescriptor cell){
+		//刷新CalendarPickView
+		// De-select the currently-selected cell.
+		selectedCell.setSelected(false);
+		// Select the new cell.
+		selectedCell = cell;
+		selectedCell.setSelected(true);
+		// Track the currently selected date value.
+		Date date2 = cell.getDate();
+		selectedCal.setTime(date2);
+	}
 
 	// *****************************************************************//
 	// ***************************** 作廢方法****************************//

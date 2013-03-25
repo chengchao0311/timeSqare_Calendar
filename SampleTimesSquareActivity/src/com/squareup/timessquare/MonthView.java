@@ -35,8 +35,6 @@ public class MonthView extends LinearLayout {
 		view.grid.getChildAt(0);
 		for (int c = Calendar.SUNDAY; c <= Calendar.SATURDAY; c++) {
 			today.set(Calendar.DAY_OF_WEEK, c);
-			// final TextView textView = (TextView) headerRow.getChildAt(c - 1);
-			// textView.setText(weekdayNameFormat.format(today.getTime()));
 		}
 		today.set(Calendar.DAY_OF_WEEK, originalDayOfWeek);
 		view.listener = listener;
@@ -127,15 +125,56 @@ public class MonthView extends LinearLayout {
 	}
 
 	// *************工具
-	boolean sameDate(Calendar cal, Calendar selectedDate) {
+	public static boolean sameDate(Calendar cal, Calendar selectedDate) {
 		return cal.get(MONTH) == selectedDate.get(MONTH)
 				&& cal.get(YEAR) == selectedDate.get(YEAR)
 				&& cal.get(DAY_OF_MONTH) == selectedDate.get(DAY_OF_MONTH);
 	}
 
-	boolean betweenDates(Date date, Calendar minCal, Calendar maxCal) {
+	public static boolean betweenDates(Date date, Calendar minCal, Calendar maxCal) {
 		final Date min = minCal.getTime();
 		return (date.equals(min) || date.after(min)) // >= minCal
 				&& date.before(maxCal.getTime()); // && < maxCal
 	}
+	
+	// **************************************//
+	// *****************棄用******************//
+	// **************************************//
+	
+//	public boolean eventTimeInOneDay(PNEvent pnEvent) {
+//		Calendar aCal = Calendar.getInstance();
+//		Calendar bCal = Calendar.getInstance();
+//		aCal.setTimeInMillis(pnEvent.dtstart);
+//		bCal.setTimeInMillis(pnEvent.dtend);
+//		return sameDate(aCal, bCal);
+//	}
+	
+//	private ArrayList<PNEvent> getEventsForTheDay(long time,
+//			ArrayList<PNEvent> oneDayEvents, ArrayList<PNEvent> events) {
+//		Calendar cal = Calendar.getInstance();
+//		Calendar minCal = Calendar.getInstance();
+//		Calendar maxCal = Calendar.getInstance();
+//		for (int i = 0; i < events.size(); i++) {
+//			PNEvent pnEvent = events.get(i);
+//			if (oneDayEvents.contains(pnEvent)){
+//				continue;
+//			}
+//			if (eventTimeInOneDay(pnEvent)){//測試事件的開始時間和結束時間是不是在同一天
+//				minCal.setTimeInMillis(time);
+//				maxCal.setTimeInMillis(pnEvent.dtstart);
+//				if (sameDate(maxCal, minCal)) {
+//					oneDayEvents.add(pnEvent);
+//				}
+//			} else{
+//				cal.setTimeInMillis(time);
+//				minCal.setTimeInMillis(pnEvent.dtstart);
+//				maxCal.setTimeInMillis(pnEvent.dtend);
+//				if (betweenDates(cal.getTime(), minCal,
+//						maxCal)) { // 时间的区间包含这一天
+//					oneDayEvents.add(pnEvent);
+//				}
+//			}
+//		}
+//		return oneDayEvents;
+//	}
 }

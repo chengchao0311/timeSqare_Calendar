@@ -3,8 +3,6 @@ package com.squareup.timessquare.sample;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-import com.squareup.timessquare.CalendarPickerView;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
@@ -13,14 +11,10 @@ import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.CalendarContract;
 import android.text.InputType;
 import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.View.OnFocusChangeListener;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.TimePicker;
 
 //用于给事件选择时间
@@ -47,6 +41,8 @@ public class ChooseDate extends Activity {
 		// 初始化
 		fromDateCal = Calendar.getInstance();
 		toDateCal = Calendar.getInstance();
+		fromDateCal.set(Calendar.SECOND, 0);
+		toDateCal.set(Calendar.SECOND, 0);
 
 		fromDate = (Button) findViewById(R.id.from_date);
 		fromDate.setInputType(InputType.TYPE_NULL); // 取消弹出软键盘
@@ -54,13 +50,12 @@ public class ChooseDate extends Activity {
 		fromTime.setInputType(InputType.TYPE_NULL);
 
 		toDate = (Button) findViewById(R.id.to_date);
-		toDate.setInputType(InputType.TYPE_NULL); // 取消弹出软键盘
-
+		toDate.setInputType(InputType.TYPE_NULL);
 		toTime = (Button) findViewById(R.id.to_time);
-		toTime.setInputType(InputType.TYPE_NULL); // 取消弹出软键盘
-		
+		toTime.setInputType(InputType.TYPE_NULL);
+
 		saveBtn = (Button) findViewById(R.id.save_button);
-		
+
 		// 獲取incoming數據
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -69,9 +64,16 @@ public class ChooseDate extends Activity {
 			if (dtstart != 0 && dtend != 0) {
 				fromDateCal.setTimeInMillis(dtstart);
 				toDateCal.setTimeInMillis(dtend);
+			} else {
+				dtstart = fromDateCal.getTimeInMillis();// 如果沒有dtstart,dtend
+														// 就一定要初始化
+				dtend = toDateCal.getTimeInMillis();
 			}
+		} else {
+			dtstart = fromDateCal.getTimeInMillis();
+			dtend = toDateCal.getTimeInMillis();
 		}
-		
+
 		fromDate.setText(buildDateString(fromDateCal));
 		fromTime.setText(buildTimeString(fromDateCal));
 		toDate.setText(buildDateString(toDateCal));
@@ -140,15 +142,16 @@ public class ChooseDate extends Activity {
 							}
 							toTime.setText(buildTimeString(toDateCal));
 						}
-						//時間是否改變，如果改變 儲存按鈕 才可以點擊
-						if ((dtstart != fromDateCal.getTimeInMillis()) || (dtend != toDateCal.getTimeInMillis())) {
+						// 時間是否改變，如果改變 儲存按鈕 才可以點擊
+
+						if (dtstart != fromDateCal.getTimeInMillis()
+								|| dtend != toDateCal.getTimeInMillis()) {
 							saveBtn.setClickable(true);
-							saveBtn.setBackgroundColor(R.drawable.head_button);
-						}else {
+							saveBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.head_button));
+						} else {
 							saveBtn.setClickable(false);
-							saveBtn.setBackgroundColor(R.drawable.head_button_unclicked);
+							saveBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.head_button_unclicked));
 						}
-							
 					}
 				}, buildHour, buildMinute, true);
 		timepicker.show();
@@ -177,6 +180,7 @@ public class ChooseDate extends Activity {
 					@Override
 					public void onDateSet(DatePicker view, int year,
 							int monthOfYear, int dayOfMonth) {
+
 						if (v.getId() == R.id.from_date) {// 点击的是from_Date
 							fromDateCal.set(year, monthOfYear, dayOfMonth);
 							fromDate.setText(buildDateString(fromDateCal));
@@ -210,20 +214,23 @@ public class ChooseDate extends Activity {
 							toDate.setText(buildDateString(toDateCal));
 							toTime.setText(buildTimeString(toDateCal));
 						}
-						
-						if ((dtstart != fromDateCal.getTimeInMillis()) || (dtend != toDateCal.getTimeInMillis())) {
+					
+
+						if (dtstart != fromDateCal.getTimeInMillis()
+								|| dtend != toDateCal.getTimeInMillis()) {
 							saveBtn.setClickable(true);
-							saveBtn.setBackgroundColor(R.drawable.head_button);
-						}else {
+							saveBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.head_button));
+						} else {
 							saveBtn.setClickable(false);
-							saveBtn.setBackgroundColor(R.drawable.head_button_unclicked);
+							saveBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.head_button_unclicked));
 						}
-							
+
 					}
 				}, buildYear, buildMonth, buildDate);
 		datePicker.show();
 	}
 
+	@SuppressLint("SimpleDateFormat")
 	public String buildDateString(Calendar cal) {
 
 		String week = new SimpleDateFormat("EEE").format(cal.getTime());
@@ -232,7 +239,7 @@ public class ChooseDate extends Activity {
 	}
 
 	public String buildTimeString(Calendar cal) {
-		return cal.get(cal.HOUR_OF_DAY) + ":" + (cal.get(cal.MINUTE));
+		return cal.get(Calendar.HOUR_OF_DAY) + ":" + (cal.get(Calendar.MINUTE));
 	}
 
 	public void back(View view) {

@@ -5,5 +5,6 @@ import java.util.ArrayList;
 import com.pnwedding.domain.PNEvent;
 
 public interface ToDoListCallBack {
-	public void showEventsForTheDay(ArrayList<PNEvent> oneDayEventsFromCell);;
+	public void showEventsForTheDay(boolean refreshCPV);
+	public void clearAndrefresh();
 }

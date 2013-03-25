@@ -19,6 +19,10 @@ import android.provider.CalendarContract.Calendars;
 import android.provider.CalendarContract.Events;
 import android.util.Log;
 import com.squareup.timessquare.CalendarPickerView;
+import com.squareup.timessquare.MonthCellDescriptor;
+import com.squareup.timessquare.sample.CalendarPage;
+import com.squareup.timessquare.sample.ToDoAdapter;
+
 public class PNCalendar implements Parcelable {
 
 	public long _id;
@@ -136,87 +140,70 @@ public class PNCalendar implements Parcelable {
 	}
 
 	@SuppressLint("NewApi")
-	public ArrayList<PNEvent> queryEventsFromCalendar(final Context context,final ArrayList<PNEvent> events,final CalendarPickerView calendar, final Handler hadnler) {
-		events.clear();//先清空之前的事件
+	public ArrayList<PNEvent> queryEventsFromCalendarAndFreshToDoList(
+			final Context context, final ArrayList<PNEvent> events,
+			final CalendarPickerView calendar, final ToDoAdapter toDaAdapter,
+			final ArrayList<PNEvent> onDayEvents, final boolean refreshCPV) {
+		events.clear();// 先清空之前的事件
+		onDayEvents.clear();
+		CalendarPage.refreshCPVTag = refreshCPV;
 		// CalendarContract.Events.CALENDAR_ID != 1 表示只查询未被删除的事件
 		ContentResolver cr = context.getContentResolver();
-		AsyncQueryHandler queryHandler = new AsyncQueryHandler(context.getContentResolver()) {
+		AsyncQueryHandler queryHandler = new AsyncQueryHandler(
+				context.getContentResolver()) {
 			@Override
 			protected void onQueryComplete(int token, Object cookie,
 					Cursor cursor) {
 				while (cursor.moveToNext()) {
 					PNEvent pnEvent = new PNEvent();
 					pnEvent.calendar_id = PNCalendar.this._id;
-					pnEvent.title = cursor.getString(cursor.getColumnIndex("title"));
-					pnEvent.dtstart = cursor.getLong(cursor.getColumnIndex("dtstart"));
-					pnEvent.dtend = cursor.getLong(cursor.getColumnIndex("dtend"));
+					pnEvent.title = cursor.getString(cursor
+							.getColumnIndex("title"));
+					pnEvent.dtstart = cursor.getLong(cursor
+							.getColumnIndex("dtstart"));
+					pnEvent.dtend = cursor.getLong(cursor
+							.getColumnIndex("dtend"));
 					pnEvent._id = cursor.getLong(cursor.getColumnIndex("_id"));
 					pnEvent.description = cursor.getString(cursor
 							.getColumnIndex("description"));
 					events.add(pnEvent);
 				}
 				cursor.close();
-				
-//				if (events.size() != 0) {
-//					for (int i = 0; i < events.size(); i++) {
-//						PNEvent pnEvent2 = events.get(i);
-//						ArrayList<MonthCellDescriptor> cells = calendar.findMonthCellByEvent(pnEvent2);//找到與事件相關的cell
-//						if (cells.size() == 1) {//說明開始結束是在一天
-//							SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy MM dd");
-//							MonthCellDescriptor monthCellDescriptor = cells.get(0);
-//							
-//							if (BuildConfig.DEBUG) {
-//								System.err.println("events.size()" + events.size());
-//								System.out.println("更新的 cell date"  + simpleDateFormat.format(cells.get(0).getDate()));
-//								long time = monthCellDescriptor.getDate().getTime();
-//							}
-//							
-//							//先設置成有事件
-//							if (!monthCellDescriptor.isHasEvent()) {
-//								monthCellDescriptor.hasEvent = true;
-//							}
-//							//增加事件
-//							ArrayList<PNEvent> oneDayevents = monthCellDescriptor.getEvents();
-//							if (oneDayevents == null) {//如果沒有eventlist
-//								oneDayevents = new ArrayList<PNEvent>();
-//								oneDayevents.add(pnEvent2);
-//								monthCellDescriptor.setEvents(oneDayevents);
-//							}else {
-//								oneDayevents.add(pnEvent2);
-//							}
-//							
-//							
-//						}	
-//					}
-//				}
-				hadnler.postDelayed(new Runnable() {
+				// 刷新 CalendarPV
+				if (refreshCPV) {
+					calendar.getAdapter().notifyDataSetChanged();
 					
-					@Override
-					public void run() {
-						Log.e("event", "刷新");
-						calendar.getAdapter().notifyDataSetChanged();
+				}
+				if(calendar.selectedCell.hasEvent){
+					// 更新toDoList
+					long dayStartMill = getDayStartMill(calendar.selectedCell
+							.getDate().getTime());
+					long dayEndMill = getDayEndMill(calendar.selectedCell.getDate()
+							.getTime());
+					for (int i = 0; i < events.size(); i++) {
+						PNEvent aEvent = events.get(i);
+						if (aEvent.dtend < dayStartMill
+								|| aEvent.dtstart > dayEndMill) {
+							continue;// 結束時間小於本日開始時間或者開始時間大於本日借宿時間，本日不在事件區間內
+						} else {
+							onDayEvents.add(aEvent);
+						}
 					}
-				}, 500);
-
+				}
+				
+				toDaAdapter.notifyDataSetChanged();
+				CalendarPage.refreshCPVTag = false;
 			}
 		};
-		
-		queryHandler.startQuery(111, new Object(), Events.CONTENT_URI, new String[] { "_id", "title", "dtstart", "dtend",
-						"description" },CalendarContract.Events.CALENDAR_ID + " = ?" + " AND "
-						+ CalendarContract.Events.DELETED + " != ?", new String[] { String.valueOf(PNCalendar.this._id), "1" }, "dtstart ASC");
-		
-//		Cursor cur = .query(
-//				Events.CONTENT_URI,
-//				new String[] { "_id", "title", "dtstart", "dtend",
-//						"description" },
-//				CalendarContract.Events.CALENDAR_ID + " = ?" + " AND "
-//						+ CalendarContract.Events.DELETED + " != ?",
-//				new String[] { String.valueOf(PNCalendar.this._id), "1" },
-//				"dtstart ASC");
 
-		// String[] l = cur.getColumnNames();
+		queryHandler.startQuery(111, new Object(), Events.CONTENT_URI,
+				new String[] { "_id", "title", "dtstart", "dtend",
+						"description" }, CalendarContract.Events.CALENDAR_ID
+						+ " = ?" + " AND " + CalendarContract.Events.DELETED
+						+ " != ?",
+				new String[] { String.valueOf(PNCalendar.this._id), "1" },
+				"dtstart ASC");
 
-	
 		return events;
 	}
 
@@ -304,4 +291,75 @@ public class PNCalendar implements Parcelable {
 		}
 	}
 
+	// ***************************************//
+	// ******************工具方法***************//
+	// ***************************************//
+
+	public static long getDayStartMill(long time) {
+		Calendar tmpCal = Calendar.getInstance();
+		tmpCal.setTimeInMillis(time);
+		tmpCal.set(Calendar.HOUR_OF_DAY, 0);
+		tmpCal.set(Calendar.MINUTE, 0);
+		tmpCal.set(Calendar.SECOND, 0);
+		tmpCal.set(Calendar.MILLISECOND, 0);
+		return tmpCal.getTimeInMillis();
+	}
+
+	public static long getDayEndMill(long time) {
+		Calendar tmpCal = Calendar.getInstance();
+		tmpCal.setTimeInMillis(time);
+		tmpCal.set(Calendar.HOUR_OF_DAY, 23);
+		tmpCal.set(Calendar.MINUTE, 11);
+		tmpCal.set(Calendar.SECOND, 59);
+		tmpCal.set(Calendar.MILLISECOND, 59);
+		return tmpCal.getTimeInMillis();
+	}
+
+	// ***************************************//
+	// ******************作廢方法***************//
+	// ***************************************//
+	// @SuppressLint({ "InlinedApi", "NewApi" })
+	// public ArrayList<PNEvent> queryOneDayEventsFromCalendar(Context context,
+	// final ArrayList<PNEvent> oneDayEvents, long time,
+	// final Handler handler, final ToDoAdapter toDoAdapter) {
+	// oneDayEvents.clear();
+	// long dayStartMill = getDayStartMill(time);
+	// long dayEndMill = getDayEndMill(time);
+	//
+	// ContentResolver cr = context.getContentResolver();
+	// AsyncQueryHandler queryHandler = new AsyncQueryHandler(cr) {
+	// @Override
+	// protected void onQueryComplete(int token, Object cookie,
+	// Cursor cursor) {
+	// while (cursor.moveToNext()) {
+	// PNEvent pnEvent = new PNEvent();
+	// pnEvent.calendar_id = PNCalendar.this._id;
+	// pnEvent.title = cursor.getString(cursor
+	// .getColumnIndex("title"));
+	// pnEvent.dtstart = cursor.getLong(cursor
+	// .getColumnIndex("dtstart"));
+	// pnEvent.dtend = cursor.getLong(cursor
+	// .getColumnIndex("dtend"));
+	// pnEvent._id = cursor.getLong(cursor.getColumnIndex("_id"));
+	// pnEvent.description = cursor.getString(cursor
+	// .getColumnIndex("description"));
+	// oneDayEvents.add(pnEvent);
+	// }
+	// toDoAdapter.notifyDataSetChanged();
+	// }
+	// };
+	//
+	// queryHandler.startQuery(111, new Object(), Events.CONTENT_URI,
+	// new String[] { "_id", "title", "dtstart", "dtend",
+	// "description" }, CalendarContract.Events.CALENDAR_ID
+	// + " = ?" + " AND "
+	// + CalendarContract.Events.DELETED//
+	// + " != ?" + " AND " + CalendarContract.Events.DTSTART
+	// + " >= ?" //
+	// + " AND " + CalendarContract.Events.DTEND + " <= ?",
+	// new String[] { String.valueOf(PNCalendar.this._id), "1",
+	// dayStartMill + "", dayEndMill + "" }, "dtstart ASC");
+	//
+	// return oneDayEvents;
+	// }
 }

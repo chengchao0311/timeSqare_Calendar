@@ -15,11 +15,12 @@ public class MonthCellDescriptor {
 	private final boolean isToday;
 	private final boolean isSelectable;
 	public boolean hasEvent;
-	private ArrayList<PNEvent> events;
-	
+	private int monthIndex;
+	private int weekIndex;
+	private int dayIndex;
 
 	MonthCellDescriptor(Date date, boolean currentMonth, boolean selectable,
-			boolean selected, boolean hasEvent, boolean today, int value, ArrayList<PNEvent> events) {
+			boolean selected, boolean hasEvent, boolean today, int value) {
 		this.date = date;
 		isCurrentMonth = currentMonth;
 		isSelectable = selectable;
@@ -27,8 +28,36 @@ public class MonthCellDescriptor {
 		isToday = today;
 		this.hasEvent = hasEvent;
 		this.value = value;
-		this.events = events;
 	}
+	
+	public int getMonthIndex() {
+		return monthIndex;
+	}
+
+	public void setMonthIndex(int monthIndex) {
+		this.monthIndex = monthIndex;
+	}
+
+	public int getWeekIndex() {
+		return weekIndex;
+	}
+
+	public void setWeekIndex(int weekIndex) {
+		this.weekIndex = weekIndex;
+	}
+
+	public int getDayIndex() {
+		return dayIndex;
+	}
+
+	public void setDayIndex(int dayIndex) {
+		this.dayIndex = dayIndex;
+	}
+
+	public void setHasEvent(boolean hasEvent) {
+		this.hasEvent = hasEvent;
+	}
+
 
 	public Date getDate() {
 		return date;
@@ -62,13 +91,6 @@ public class MonthCellDescriptor {
 		return hasEvent;
 	}
 
-	public ArrayList<PNEvent> getEvents() {
-		return events;
-	}
-
-	public void setEvents(ArrayList<PNEvent> events) {
-		this.events = events;
-	}
 
 	@Override
 	public String toString() {

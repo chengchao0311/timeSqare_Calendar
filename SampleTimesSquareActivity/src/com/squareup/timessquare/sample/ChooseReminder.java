@@ -8,10 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.CheckBox;
 import android.widget.ListView;
-
 import com.pnwedding.domain.ReminderTimeDescriptor;
 import com.pnwedding.utils.CheckImageView;
 
