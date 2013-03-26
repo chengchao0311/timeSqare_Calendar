@@ -39,10 +39,8 @@ public class CalendarPage extends FragmentActivity implements
 	private int position;
 	private CalendarPickerView calendarPickView;
 	private TextView title;
-	private View addEventBtn;
 	private int cellSize;
 	private LinearLayout headerRow;
-	private RelativeLayout bottom;
 	private float rowFive;
 	private float rowSix;
 	private float rowFour;
@@ -70,13 +68,14 @@ public class CalendarPage extends FragmentActivity implements
 		// 計算每天格子的大小 為調整buttom做準備
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 		cellSize = displayMetrics.widthPixels / 7;
-		bottom = (RelativeLayout) findViewById(R.id.bottom);
-
+		
+		View addEventLayout = getLayoutInflater().inflate(R.layout.add_event_row, null);
 		// ListView 部分
 		listView = (ListView) findViewById(R.id.listView);
 		oneDayEvents = new ArrayList<PNEvent>();// 第一次先创建一个空的容器
 		toDoAdapter = new ToDoAdapter(this, R.layout.to_do_list_item,
 				R.id.to_do_item, oneDayEvents);
+		listView.addHeaderView(addEventLayout);
 		listView.setAdapter(toDoAdapter);
 
 		// 初始化CalendarPickView的時間跨度
@@ -130,8 +129,7 @@ public class CalendarPage extends FragmentActivity implements
 		}
 
 		// handle action
-		addEventBtn = findViewById(R.id.addEvent);
-		addEventBtn.setOnClickListener(new OnClickListener() {
+		addEventLayout.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View view) {
 				Intent intent = new Intent();
@@ -183,7 +181,7 @@ public class CalendarPage extends FragmentActivity implements
 			
 			int size = oneDayEvents.size();
 			
-			Log.e("size", size + "");
+		
 		}
 	}
 
@@ -239,16 +237,16 @@ public class CalendarPage extends FragmentActivity implements
 		}
 		// 调整位置
 		if (calendarPickView.cells.get(arg0).size() == 5) {
-			if (bottom.getY() != (rowFive)) {
-				bottom.setY(rowFive);
+			if (listView.getY() != (rowFive)) {
+				listView.setY(rowFive);
 			}
 		} else if (calendarPickView.cells.get(arg0).size() == 4) {
-			if (bottom.getY() != rowFour) {
-				bottom.setY(rowFour);
+			if (listView.getY() != rowFour) {
+				listView.setY(rowFour);
 			}
 		} else {
-			if (bottom.getY() != rowSix) {
-				bottom.setY(rowSix);
+			if (listView.getY() != rowSix) {
+				listView.setY(rowSix);
 			}
 		}
 	}

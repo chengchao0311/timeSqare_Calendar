@@ -19,7 +19,6 @@ import com.pnwedding.domain.PNCalendar;
 import com.pnwedding.domain.ReminderTimeDescriptor;
 import com.squareup.timessquare.CalendarPickerView;
 
-
 public class EventDetail extends Activity {
 
 	@SuppressLint("SimpleDateFormat")
@@ -44,6 +43,7 @@ public class EventDetail extends Activity {
 	private String oldDes;
 	private Button saveBtn;
 	private int requestCode;
+	private SimpleDateFormat timeFormater;
 
 	@SuppressLint("SimpleDateFormat")
 	@Override
@@ -53,6 +53,7 @@ public class EventDetail extends Activity {
 
 		// 初始化
 		simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
+		timeFormater = new SimpleDateFormat("HH" + "點" + "mm" + "分");
 		fromCal = Calendar.getInstance();
 		toCal = Calendar.getInstance();
 
@@ -131,7 +132,7 @@ public class EventDetail extends Activity {
 				} else {
 					editTitleFlag = false;
 				}
-				updateBtnSatuts();
+				updateSaveBtnSatuts();
 			}
 		});
 
@@ -153,7 +154,7 @@ public class EventDetail extends Activity {
 				} else {
 					editDesFlag = false;
 				}
-				updateBtnSatuts();
+				updateSaveBtnSatuts();
 			}
 		});
 	}
@@ -161,7 +162,7 @@ public class EventDetail extends Activity {
 	// **************************************//
 	// *****************生命週期方法***********//
 	// **************************************//
-	
+
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
@@ -169,15 +170,29 @@ public class EventDetail extends Activity {
 			Bundle extras = data.getExtras();
 			long dtstart = extras.getLong("dtstart");
 			long dtend = extras.getLong("dtend");
-
 			fromCal.setTimeInMillis(dtstart);
 			toCal.setTimeInMillis(dtend);
-			choosDateTextView.setText(" "
-					+ simpleDateFormat.format(fromCal.getTime()) + " "
-					+ getResources().getString(R.string.to) + " "
-					+ simpleDateFormat.format(toCal.getTime()));
+
+			if (CalendarPickerView.sameDate(fromCal, toCal)) {
+				if (fromCal.getTime().equals(toCal.getTime())) {
+					choosDateTextView.setText(" " + simpleDateFormat.format(fromCal.getTime()) + //
+							" " + timeFormater.format(fromCal.getTime()));
+				} else {
+					choosDateTextView.setText(" "
+							+ simpleDateFormat.format(fromCal.getTime())//
+							+ " " + timeFormater.format(fromCal.getTime())//
+							+ " 到 " + timeFormater.format(toCal.getTime())//
+					);
+				}
+			} else {
+				choosDateTextView.setText(" "
+						+ simpleDateFormat.format(fromCal.getTime()) + " "
+						+ getResources().getString(R.string.to) + " "
+						+ simpleDateFormat.format(toCal.getTime()));
+			}
+
 			editDateFlag = true;
-			updateBtnSatuts();
+			updateSaveBtnSatuts();
 		}
 
 		if (resultCode == CalendarPage.EVENTDETAIL_CHOOSEREMINDER) {
@@ -188,7 +203,6 @@ public class EventDetail extends Activity {
 		}
 	}
 
-	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -211,7 +225,6 @@ public class EventDetail extends Activity {
 		finish();
 	}
 
-
 	public void done(View view) {
 		// 插入數據
 		pnCalendar.insertEvent(this, titleView.getText().toString(), desView//
@@ -222,7 +235,7 @@ public class EventDetail extends Activity {
 		editDesFlag = false;
 		editReminderFlag = false;
 		editTitleFlag = false;
-		//將更改或增加的事件的時間傳回去
+		// 將更改或增加的事件的時間傳回去
 		Intent intent = new Intent();
 		CalendarPickerView.setMidnight(fromCal);
 		CalendarPickerView.setMidnight(toCal);
@@ -232,7 +245,7 @@ public class EventDetail extends Activity {
 		finish();
 	}
 
-	private void updateBtnSatuts() {
+	private void updateSaveBtnSatuts() {
 		if (editAttFlag || editDateFlag || editDesFlag || editReminderFlag
 				|| editTitleFlag) {
 			saveBtn.setClickable(true);

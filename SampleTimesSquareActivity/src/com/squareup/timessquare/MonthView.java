@@ -6,6 +6,8 @@ import static java.util.Calendar.MONTH;
 import static java.util.Calendar.YEAR;
 import android.content.Context;
 import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.style.UnderlineSpan;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,6 +27,7 @@ public class MonthView extends LinearLayout {
 	private static int textColor;
 	private CalendarGridView grid;
 	private Listener listener;
+
 	public static MonthView create(ViewGroup parent, LayoutInflater inflater,
 			DateFormat weekdayNameFormat, Listener listener, Calendar today) {
 		final MonthView view = (MonthView) inflater.inflate(R.layout.month,
@@ -54,7 +57,7 @@ public class MonthView extends LinearLayout {
 	public String init(MonthDescriptor month,
 			List<List<MonthCellDescriptor>> cells, ArrayList<PNEvent> events) {
 		Logr.d("Initializing MonthView for %s", month);
-		
+
 		if (textColor == 0) {
 			textColor = getResources().getColor(R.color.calendar_text_active);
 		}
@@ -63,9 +66,7 @@ public class MonthView extends LinearLayout {
 		Calendar maxCal = Calendar.getInstance();
 		long start = System.currentTimeMillis();
 		final int numRows = cells.size();
-		
-		
-		
+
 		for (int i = 0; i < 6; i++) {
 			CalendarRowView weekRow = (CalendarRowView) grid.getChildAt(i + 1);
 			weekRow.setListener(listener);
@@ -94,9 +95,8 @@ public class MonthView extends LinearLayout {
 					// 設置index方便在外部找到
 					CheckedTextView cellView = (CheckedTextView) weekRow
 							.getChildAt(c);
-					cellView.setText(Integer.toString(cell.getValue()));
 					cellView.setEnabled(cell.isCurrentMonth());
-					cellView.setChecked(!cell.isToday());
+					cellView.setChecked(true);
 					cellView.setSelected(cell.isSelected());
 					if (cell.isSelectable()) {
 						cellView.setTextColor(getResources().getColorStateList(
@@ -105,10 +105,14 @@ public class MonthView extends LinearLayout {
 						cellView.setTextColor(getResources().getColor(
 								R.color.calendar_text_unselectable));
 					}
+
 					if (cell.isHasEvent()) {
 						if (cell.isCurrentMonth()) {
-							cellView.setTextColor(Color.RED);
+							cellView.setText(Integer.toString(cell.getValue()) + "\n" + "▁▁▁▁");
+							cellView.setLineSpacing(0, 1);
 						}
+					} else {
+						cellView.setText(Integer.toString(cell.getValue()));
 					}
 					cellView.setTag(cell);
 				}
@@ -131,50 +135,51 @@ public class MonthView extends LinearLayout {
 				&& cal.get(DAY_OF_MONTH) == selectedDate.get(DAY_OF_MONTH);
 	}
 
-	public static boolean betweenDates(Date date, Calendar minCal, Calendar maxCal) {
+	public static boolean betweenDates(Date date, Calendar minCal,
+			Calendar maxCal) {
 		final Date min = minCal.getTime();
 		return (date.equals(min) || date.after(min)) // >= minCal
 				&& date.before(maxCal.getTime()); // && < maxCal
 	}
-	
+
 	// **************************************//
 	// *****************棄用******************//
 	// **************************************//
-	
-//	public boolean eventTimeInOneDay(PNEvent pnEvent) {
-//		Calendar aCal = Calendar.getInstance();
-//		Calendar bCal = Calendar.getInstance();
-//		aCal.setTimeInMillis(pnEvent.dtstart);
-//		bCal.setTimeInMillis(pnEvent.dtend);
-//		return sameDate(aCal, bCal);
-//	}
-	
-//	private ArrayList<PNEvent> getEventsForTheDay(long time,
-//			ArrayList<PNEvent> oneDayEvents, ArrayList<PNEvent> events) {
-//		Calendar cal = Calendar.getInstance();
-//		Calendar minCal = Calendar.getInstance();
-//		Calendar maxCal = Calendar.getInstance();
-//		for (int i = 0; i < events.size(); i++) {
-//			PNEvent pnEvent = events.get(i);
-//			if (oneDayEvents.contains(pnEvent)){
-//				continue;
-//			}
-//			if (eventTimeInOneDay(pnEvent)){//測試事件的開始時間和結束時間是不是在同一天
-//				minCal.setTimeInMillis(time);
-//				maxCal.setTimeInMillis(pnEvent.dtstart);
-//				if (sameDate(maxCal, minCal)) {
-//					oneDayEvents.add(pnEvent);
-//				}
-//			} else{
-//				cal.setTimeInMillis(time);
-//				minCal.setTimeInMillis(pnEvent.dtstart);
-//				maxCal.setTimeInMillis(pnEvent.dtend);
-//				if (betweenDates(cal.getTime(), minCal,
-//						maxCal)) { // 时间的区间包含这一天
-//					oneDayEvents.add(pnEvent);
-//				}
-//			}
-//		}
-//		return oneDayEvents;
-//	}
+
+	// public boolean eventTimeInOneDay(PNEvent pnEvent) {
+	// Calendar aCal = Calendar.getInstance();
+	// Calendar bCal = Calendar.getInstance();
+	// aCal.setTimeInMillis(pnEvent.dtstart);
+	// bCal.setTimeInMillis(pnEvent.dtend);
+	// return sameDate(aCal, bCal);
+	// }
+
+	// private ArrayList<PNEvent> getEventsForTheDay(long time,
+	// ArrayList<PNEvent> oneDayEvents, ArrayList<PNEvent> events) {
+	// Calendar cal = Calendar.getInstance();
+	// Calendar minCal = Calendar.getInstance();
+	// Calendar maxCal = Calendar.getInstance();
+	// for (int i = 0; i < events.size(); i++) {
+	// PNEvent pnEvent = events.get(i);
+	// if (oneDayEvents.contains(pnEvent)){
+	// continue;
+	// }
+	// if (eventTimeInOneDay(pnEvent)){//測試事件的開始時間和結束時間是不是在同一天
+	// minCal.setTimeInMillis(time);
+	// maxCal.setTimeInMillis(pnEvent.dtstart);
+	// if (sameDate(maxCal, minCal)) {
+	// oneDayEvents.add(pnEvent);
+	// }
+	// } else{
+	// cal.setTimeInMillis(time);
+	// minCal.setTimeInMillis(pnEvent.dtstart);
+	// maxCal.setTimeInMillis(pnEvent.dtend);
+	// if (betweenDates(cal.getTime(), minCal,
+	// maxCal)) { // 时间的区间包含这一天
+	// oneDayEvents.add(pnEvent);
+	// }
+	// }
+	// }
+	// return oneDayEvents;
+	// }
 }

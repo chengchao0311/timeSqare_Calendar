@@ -172,8 +172,10 @@ public class PNCalendar implements Parcelable {
 				// 刷新 CalendarPV
 				if (refreshCPV) {
 					calendar.getAdapter().notifyDataSetChanged();
-					
 				}
+				
+				
+				
 				if(calendar.selectedCell.hasEvent){
 					// 更新toDoList
 					long dayStartMill = getDayStartMill(calendar.selectedCell
@@ -190,7 +192,6 @@ public class PNCalendar implements Parcelable {
 						}
 					}
 				}
-				
 				toDaAdapter.notifyDataSetChanged();
 				CalendarPage.refreshCPVTag = false;
 			}

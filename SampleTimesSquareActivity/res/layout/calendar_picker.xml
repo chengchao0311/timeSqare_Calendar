@@ -9,7 +9,8 @@
     <RelativeLayout
         android:id="@+id/head"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:background="#ffffffff" >
 
         <Button
             android:id="@+id/prev"
@@ -43,7 +44,9 @@
     <LinearLayout
         android:id="@+id/weekRow"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:background="#ffffffff"
+        android:paddingBottom="5dp" >
 
         <TextView
             style="@style/CalendarCell.DayHeader"
@@ -88,42 +91,16 @@
         android:background="#FFFFFF"
         android:clipToPadding="false" />
 
-    <RelativeLayout
-        android:id="@+id/bottom"
+    <ListView
+        android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical" >
+        android:layout_marginLeft="40dp"
+        android:scrollbars="none"
+        android:layout_marginRight="40dp"
+        android:divider="@color/to_do_list_divider"
+        android:dividerHeight="1dp" >
 
-        <RelativeLayout
-            android:id="@+id/addEvent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <TextView
-                style="@style/CalendarTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:paddingLeft="10dp"
-                android:text="@string/add_event" />
-
-            <TextView
-                android:id="@+id/add_textview"
-                style="@style/CalendarTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:paddingRight="10dp"
-                android:text="@string/add_event_plus" />
-        </RelativeLayout>
-
-        <ListView
-            android:id="@+id/listView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/addEvent"
-            android:paddingTop="10dp" >
-        </ListView>
-    </RelativeLayout>
+    </ListView>
 
 </LinearLayout>

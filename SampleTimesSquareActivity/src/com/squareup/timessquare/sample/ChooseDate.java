@@ -30,7 +30,7 @@ public class ChooseDate extends Activity {
 	private Button toTime;
 	private long dtstart;
 	private long dtend;
-
+	private boolean editFlag;
 	private Button saveBtn;
 
 	@SuppressLint("SimpleDateFormat")
@@ -53,7 +53,6 @@ public class ChooseDate extends Activity {
 		toDate.setInputType(InputType.TYPE_NULL);
 		toTime = (Button) findViewById(R.id.to_time);
 		toTime.setInputType(InputType.TYPE_NULL);
-
 		saveBtn = (Button) findViewById(R.id.save_button);
 
 		// 獲取incoming數據
@@ -61,16 +60,20 @@ public class ChooseDate extends Activity {
 		if (extras != null) {
 			dtstart = extras.getLong("dstart");
 			dtend = extras.getLong("dtend");
+			if (extras.getString("editFlag") != null) {
+				editFlag = true;
+			}else {
+				setSaveBtnClickable();
+			}
 			if (dtstart != 0 && dtend != 0) {
 				fromDateCal.setTimeInMillis(dtstart);
 				toDateCal.setTimeInMillis(dtend);
 			} else {
-				dtstart = fromDateCal.getTimeInMillis();// 如果沒有dtstart,dtend
-														// 就一定要初始化
+				dtstart = fromDateCal.getTimeInMillis();
 				dtend = toDateCal.getTimeInMillis();
 			}
 		} else {
-			dtstart = fromDateCal.getTimeInMillis();
+			dtstart = fromDateCal.getTimeInMillis();// 如果沒有dtstart,dtend,就一定要初始化
 			dtend = toDateCal.getTimeInMillis();
 		}
 
@@ -143,16 +146,20 @@ public class ChooseDate extends Activity {
 							toTime.setText(buildTimeString(toDateCal));
 						}
 						// 時間是否改變，如果改變 儲存按鈕 才可以點擊
-
-						if (dtstart != fromDateCal.getTimeInMillis()
-								|| dtend != toDateCal.getTimeInMillis()) {
-							saveBtn.setClickable(true);
-							saveBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.head_button));
+						if (editFlag) {
+							if (dtstart != fromDateCal.getTimeInMillis()
+									|| dtend != toDateCal.getTimeInMillis()) {
+								setSaveBtnClickable();
+							} else {
+								setSaveBtnUnClickable();
+							}
 						} else {
-							saveBtn.setClickable(false);
-							saveBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.head_button_unclicked));
+							setSaveBtnClickable();
 						}
+
 					}
+
+				
 				}, buildHour, buildMinute, true);
 		timepicker.show();
 	}
@@ -214,17 +221,17 @@ public class ChooseDate extends Activity {
 							toDate.setText(buildDateString(toDateCal));
 							toTime.setText(buildTimeString(toDateCal));
 						}
-					
 
-						if (dtstart != fromDateCal.getTimeInMillis()
-								|| dtend != toDateCal.getTimeInMillis()) {
-							saveBtn.setClickable(true);
-							saveBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.head_button));
+						if (editFlag) {
+							if (dtstart != fromDateCal.getTimeInMillis()
+									|| dtend != toDateCal.getTimeInMillis()) {
+								setSaveBtnClickable();
+							} else {
+								setSaveBtnUnClickable();
+							}
 						} else {
-							saveBtn.setClickable(false);
-							saveBtn.setBackgroundDrawable(getResources().getDrawable(R.drawable.head_button_unclicked));
+							setSaveBtnClickable();
 						}
-
 					}
 				}, buildYear, buildMonth, buildDate);
 		datePicker.show();
@@ -239,7 +246,17 @@ public class ChooseDate extends Activity {
 	}
 
 	public String buildTimeString(Calendar cal) {
-		return cal.get(Calendar.HOUR_OF_DAY) + ":" + (cal.get(Calendar.MINUTE));
+		String hourString = String.valueOf(cal.get(Calendar.HOUR_OF_DAY));
+		String minuteString = String.valueOf(cal.get(Calendar.MINUTE));
+		if (hourString.length() == 1) {
+			hourString = "0" + hourString;
+		}
+
+		if (minuteString.length() == 1) {
+			minuteString = "0" + minuteString;
+		}
+		return hourString + ":" + minuteString;
+
 	}
 
 	public void back(View view) {
@@ -253,5 +270,25 @@ public class ChooseDate extends Activity {
 		intent.putExtra("dtend", toDateCal.getTimeInMillis());
 		setResult(CalendarPage.EVENTDETAIL_CHOOSEDATE, intent);
 		finish();
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public void setSaveBtnUnClickable() {
+		saveBtn.setClickable(false);
+		saveBtn.setBackgroundDrawable(getResources()
+				.getDrawable(
+						R.drawable.head_button_unclicked));
+	}
+
+	/**
+	 * 
+	 */
+	public void setSaveBtnClickable() {
+		saveBtn.setClickable(true);
+		saveBtn.setBackgroundDrawable(getResources()
+				.getDrawable(R.drawable.head_button));
 	}
 }

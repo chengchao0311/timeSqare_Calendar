@@ -72,7 +72,7 @@
                 style="@style/event_detail_input_area_editText"
                 android:layout_toRightOf="@+id/title_text"
                 android:background="#00ffffff"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:inputType="text"
                 android:text="aaaa"
                 android:singleLine="true" />
