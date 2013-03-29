@@ -2,25 +2,31 @@ package com.squareup.timessquare.sample;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Set;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.pnwedding.domain.PNCalendar;
+import com.pnwedding.domain.PNEvent;
 import com.pnwedding.domain.ReminderTimeDescriptor;
+import com.pnwedding.utils.Utils;
 import com.squareup.timessquare.CalendarPickerView;
 
-public class EventDetail extends Activity {
-
+public class EventDetail extends Activity implements OnClickListener {
+	private static final long NO_EVENT_TAG = 1115001;
 	@SuppressLint("SimpleDateFormat")
 	public CalendarPage calendarPage;
 	private SimpleDateFormat simpleDateFormat;
@@ -32,20 +38,17 @@ public class EventDetail extends Activity {
 	private TextView choosDateTextView;
 	private ReminderTimeDescriptor reminderTimeDescriptor;
 	private TextView reminderTextView;
-
-	private boolean editReminderFlag;
-	private boolean editDateFlag;
-	private boolean editTitleFlag;
-	private boolean editDesFlag;
-	private boolean editAttFlag;
-
-	private String oldTitle;
-	private String oldDes;
 	private Button saveBtn;
 	private int requestCode;
 	private SimpleDateFormat timeFormater;
+	private Handler handler;
+	private long reminderTimeMills;
+	private Button deleteBtn;
+	private RelativeLayout choosDateArea;
+	private RelativeLayout remindeArea;
+	private long eventId = EventDetail.NO_EVENT_TAG;
 
-	@SuppressLint("SimpleDateFormat")
+	@SuppressLint({ "SimpleDateFormat", "NewApi" })
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -56,24 +59,50 @@ public class EventDetail extends Activity {
 		timeFormater = new SimpleDateFormat("HH" + "點" + "mm" + "分");
 		fromCal = Calendar.getInstance();
 		toCal = Calendar.getInstance();
-
+		reminderTimeMills = 0L;
 		// 初始化View
 		saveBtn = (Button) findViewById(R.id.save_button);
 		titleView = (EditText) findViewById(R.id.title_edit);
 		desView = (EditText) findViewById(R.id.description_edit_text);
 		choosDateTextView = (TextView) findViewById(R.id.date_edit);
 		reminderTextView = (TextView) findViewById(R.id.reminder_text);
+		deleteBtn = (Button) findViewById(R.id.deleteBtn);
+		choosDateArea = (RelativeLayout) findViewById(R.id.choose_date_area);
+		remindeArea = (RelativeLayout) findViewById(R.id.reminder);
 
-		oldTitle = titleView.getText().toString();
-		oldDes = desView.getText().toString();
 		// 獲得傳來的參數，顯示日期
 		Bundle extras = getIntent().getExtras();
+
+		choosDateArea.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent();
+				intent.setClass(EventDetail.this, ChooseDate.class);
+				intent.putExtra("dstart", fromCal.getTimeInMillis());
+				intent.putExtra("dtend", toCal.getTimeInMillis());
+				EventDetail.this.startActivityForResult(intent,
+						CalendarPage.EVENTDETAIL_CHOOSEDATE);
+			}
+		});
+
+		remindeArea.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View arg0) {
+				Intent intent = new Intent();
+				intent.setClass(EventDetail.this, ChooseReminder.class);
+				intent.putExtra("reminder_timeMill", reminderTimeMills);
+				EventDetail.this.startActivityForResult(intent,
+						CalendarPage.EVENTDETAIL_CHOOSEREMINDER);
+			}
+		});
 
 		if (extras != null) {
 			requestCode = extras.getInt("request_code");
 			pnCalendar = extras.getParcelable("pnCalendar");
-			if (requestCode == CalendarPage.CALENDARPAGE_EVENTDETAIL) {
-				// 點擊的是增加新按鈕的btn,初始化日期
+			if (requestCode == CalendarPage.CALENDARPAGE_EVENTDETAIL_NORMAL) {// 點擊的是增加新按鈕的btn,初始化日期
+				deleteBtn.setVisibility(View.GONE);
 				long timemills = extras.getLong("selected_date");
 				String selectedDate = "";
 				if (timemills != 0) {
@@ -82,35 +111,56 @@ public class EventDetail extends Activity {
 					selectedDate = simpleDateFormat.format(fromCal.getTime());
 				}
 				choosDateTextView.setText(selectedDate);
-			}
-		}
+				saveBtn.setOnClickListener(this);
+			} else if (requestCode == CalendarPage.CALENDARPAGE_EVENTDETAIL_EDIT) {
+				// 點擊的是to/ do
+				// 獲取Event 對頁面進行刷新 // list的某个item,编辑事件
 
-		// ----處理點擊事件----//
-		// 選擇時期被點擊
-		findViewById(R.id.choose_date_area).setOnClickListener(
-				new OnClickListener() {
+				PNEvent pnEvent = extras.getParcelable("pnEvent");
+				eventId = pnEvent._id;
+				titleView.setText(pnEvent.title);
+				desView.setText(pnEvent.description);
+				updateDateText(pnEvent.dtstart, pnEvent.dtend);
 
+				// 查詢數據庫找到事件對應的reminder,和配置文件比對,得到key
+				if (pnEvent.hasAlarm) {
+					reminderTimeMills = pnCalendar.queryReminder(this,
+							pnEvent._id);
+					if (reminderTimeMills != 0) {
+						Set<String> stringPropertyNames = Utils
+								.getReminderProperties().stringPropertyNames();
+						for (String key : stringPropertyNames) {
+							String valStr = Utils.getReminderProperties()//
+									.getProperty(key);
+							long val = Long.parseLong(valStr);
+							if (val == reminderTimeMills) {
+								reminderTextView.setText(key);
+								break;
+							}
+						}
+					}
+				} else {
+					reminderTextView.setText("無");
+				}
+				// 改變btn 狀態
+				choosDateArea.setClickable(false);
+				remindeArea.setClickable(false);
+
+
+				updateSaveBtnSatuts();
+				saveBtn.setText(getResources().getString(R.string.edit));
+				saveBtn.setOnClickListener(new OnClickListener() {
 					@Override
-					public void onClick(View arg0) {
-						Intent intent = new Intent();
-						intent.setClass(EventDetail.this, ChooseDate.class);
-						intent.putExtra("dstart", fromCal.getTimeInMillis());
-						intent.putExtra("dtend", toCal.getTimeInMillis());
-						EventDetail.this.startActivityForResult(intent,
-								CalendarPage.EVENTDETAIL_CHOOSEDATE);
+					public void onClick(View v) {
+						saveBtn.setText(getResources().getString(R.string.done));
+						// update Event;
+						deleteBtn.setVisibility(ViewGroup.VISIBLE);
+						choosDateArea.setClickable(true);
+						remindeArea.setClickable(true);
 					}
 				});
-
-		// 選擇提醒被點擊
-		findViewById(R.id.reminder).setOnClickListener(new OnClickListener() {
-
-			@Override
-			public void onClick(View arg0) {
-				Intent intent = new Intent();
-				intent.setClass(EventDetail.this, ChooseReminder.class);
-				EventDetail.this.startActivityForResult(intent, 1114);
 			}
-		});
+		}
 
 		// -----處理文字改變事件------//
 		titleView.addTextChangedListener(new TextWatcher() {
@@ -126,37 +176,11 @@ public class EventDetail extends Activity {
 
 			@Override
 			public void afterTextChanged(Editable s) {
-				String content = titleView.getText().toString();
-				if (!content.equalsIgnoreCase(oldTitle) && !content.equals("")) {// 如果文字被改變
-					editTitleFlag = true;
-				} else {
-					editTitleFlag = false;
-				}
 				updateSaveBtnSatuts();
 			}
+
 		});
 
-		desView.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				if (!desView.getText().toString().equalsIgnoreCase(oldDes)) {
-					editDesFlag = true;
-				} else {
-					editDesFlag = false;
-				}
-				updateSaveBtnSatuts();
-			}
-		});
 	}
 
 	// **************************************//
@@ -170,29 +194,7 @@ public class EventDetail extends Activity {
 			Bundle extras = data.getExtras();
 			long dtstart = extras.getLong("dtstart");
 			long dtend = extras.getLong("dtend");
-			fromCal.setTimeInMillis(dtstart);
-			toCal.setTimeInMillis(dtend);
-
-			if (CalendarPickerView.sameDate(fromCal, toCal)) {
-				if (fromCal.getTime().equals(toCal.getTime())) {
-					choosDateTextView.setText(" " + simpleDateFormat.format(fromCal.getTime()) + //
-							" " + timeFormater.format(fromCal.getTime()));
-				} else {
-					choosDateTextView.setText(" "
-							+ simpleDateFormat.format(fromCal.getTime())//
-							+ " " + timeFormater.format(fromCal.getTime())//
-							+ " 到 " + timeFormater.format(toCal.getTime())//
-					);
-				}
-			} else {
-				choosDateTextView.setText(" "
-						+ simpleDateFormat.format(fromCal.getTime()) + " "
-						+ getResources().getString(R.string.to) + " "
-						+ simpleDateFormat.format(toCal.getTime()));
-			}
-
-			editDateFlag = true;
-			updateSaveBtnSatuts();
+			updateDateText(dtstart, dtstart);
 		}
 
 		if (resultCode == CalendarPage.EVENTDETAIL_CHOOSEREMINDER) {
@@ -200,6 +202,33 @@ public class EventDetail extends Activity {
 			reminderTimeDescriptor = extras
 					.getParcelable("reminderTimeDescriptor");
 			reminderTextView.setText(reminderTimeDescriptor.text);
+			reminderTimeMills = reminderTimeDescriptor.timeMills;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void updateDateText(long dtstart, long dtend) {
+		fromCal.setTimeInMillis(dtstart);
+		toCal.setTimeInMillis(dtend);
+		if (CalendarPickerView.sameDate(fromCal, toCal)) {
+			if (fromCal.getTime().equals(toCal.getTime())) {
+				choosDateTextView.setText(" "
+						+ simpleDateFormat.format(fromCal.getTime()) + //
+						" " + timeFormater.format(fromCal.getTime()));
+			} else {
+				choosDateTextView.setText(" "
+						+ simpleDateFormat.format(fromCal.getTime())//
+						+ " " + timeFormater.format(fromCal.getTime())//
+						+ " 到 " + timeFormater.format(toCal.getTime())//
+				);
+			}
+		} else {
+			choosDateTextView.setText(" "
+					+ simpleDateFormat.format(fromCal.getTime()) + " "
+					+ getResources().getString(R.string.to) + " "
+					+ simpleDateFormat.format(toCal.getTime()));
 		}
 	}
 
@@ -217,6 +246,10 @@ public class EventDetail extends Activity {
 	// ***************************************//
 	// ******************接口實現方法***********//
 	// ***************************************//
+	@Override
+	public void onClick(View v) {
+		insertEventAndBack();
+	}
 
 	// ***************************************//
 	// ******************按鈕事件方法***********//
@@ -225,29 +258,31 @@ public class EventDetail extends Activity {
 		finish();
 	}
 
-	public void done(View view) {
+	// *********************************************//
+	// *********************抽出方法******************//
+	// *********************************************//
+	public void insertEventAndBack() {
+		// 獲取提醒時間 如果沒有就是0
+		long remiderTimeMill = 0L;
+		if (reminderTimeDescriptor != null) {
+			remiderTimeMill = reminderTimeDescriptor.timeMills;
+		}
 		// 插入數據
-		pnCalendar.insertEvent(this, titleView.getText().toString(), desView//
-				.getText().toString(), fromCal, toCal, "0");
-		// 重置（可能多餘）
-		editAttFlag = false;
-		editDateFlag = false;
-		editDesFlag = false;
-		editReminderFlag = false;
-		editTitleFlag = false;
+		pnCalendar.insertEvent(EventDetail.this,
+				titleView.getText().toString(), //
+				desView.getText().toString(), fromCal, toCal, remiderTimeMill);
 		// 將更改或增加的事件的時間傳回去
 		Intent intent = new Intent();
 		CalendarPickerView.setMidnight(fromCal);
 		CalendarPickerView.setMidnight(toCal);
 		intent.putExtra("dtstart", fromCal.getTimeInMillis());
 		intent.putExtra("dtend", toCal.getTimeInMillis());
-		setResult(CalendarPage.CALENDARPAGE_EVENTDETAIL, intent);
+		setResult(CalendarPage.CALENDARPAGE_EVENTDETAIL_NORMAL, intent);
 		finish();
 	}
 
-	private void updateSaveBtnSatuts() {
-		if (editAttFlag || editDateFlag || editDesFlag || editReminderFlag
-				|| editTitleFlag) {
+	public void updateSaveBtnSatuts() {
+		if (!titleView.getText().toString().equalsIgnoreCase("")) {
 			saveBtn.setClickable(true);
 			saveBtn.setBackgroundDrawable(getResources().getDrawable(
 					R.drawable.head_button));
@@ -256,6 +291,6 @@ public class EventDetail extends Activity {
 			saveBtn.setBackgroundDrawable(getResources().getDrawable(
 					R.drawable.head_button_unclicked));
 		}
-	}
 
+	}
 }

@@ -21,4 +21,7 @@
   <string name="Attendees">參與者:</string>
   <string name="description">描述:</string>
   <string name="new_event">新建事件</string>
+  <string name="event_title_hint">标题</string>
+  <string name="edit">編輯</string>
+  <string name="delete">剷除</string>
 </resources>

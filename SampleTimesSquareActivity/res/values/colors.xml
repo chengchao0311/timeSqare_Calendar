@@ -11,4 +11,7 @@
   <color name="calendar_text_unselectable">#7fA6A6A6</color>
   <color name="event_input_title_color">#A4846D</color>
   <color name="to_do_list_divider">#fff4dbd4</color>
+  <color name="edit_area_blank">#ffffffff</color>
+  <color name="edit_cursor">#000000</color>
+  <color name="edit_area_blue">#ff87CEFA</color>
 </resources>

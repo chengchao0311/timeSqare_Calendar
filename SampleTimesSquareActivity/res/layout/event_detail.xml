@@ -39,122 +39,138 @@
             android:layout_alignParentRight="true"
             android:layout_margin="7dp"
             android:background="@drawable/head_button_unclicked"
-            android:gravity="center"
-            android:onClick="done"
             android:clickable="false"
+            android:gravity="center"
             android:text="@string/done" />
     </RelativeLayout>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:orientation="vertical" >
-
-        <TextView
-            android:id="@+id/wedding_name_label"
-            style="@style/event_detail_input_area"
-            android:layout_marginBottom="10dp"
-            android:text="Alva Chan的婚禮" />
-
-        <RelativeLayout
-            style="@style/event_detail_input_area"
-            android:layout_marginTop="10dp" >
-
-            <TextView
-                android:id="@+id/title_text"
-                style="@style/event_detail_input_area_label"
-                android:layout_alignParentLeft="true"
-                android:text="@string/event_title" />
-
-            <EditText
-                android:id="@+id/title_edit"
-                style="@style/event_detail_input_area_editText"
-                android:layout_toRightOf="@+id/title_text"
-                android:background="#00ffffff"
-                android:gravity="center"
-                android:inputType="text"
-                android:text="aaaa"
-                android:singleLine="true" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/choose_date_area"
-            style="@style/event_detail_input_area" >
-
-            <TextView
-                android:id="@+id/date_text"
-                style="@style/event_detail_input_area_label"
-                android:layout_alignParentLeft="true"
-                android:text="@string/event_date" />
-
-            <TextView
-                android:id="@+id/date_edit"
-                style="@style/event_detail_input_area_editText"
-                android:layout_toRightOf="@+id/date_text"
-                android:background="#00ffffff"
-                android:gravity="center"
-                android:paddingTop="4dp"
-                tools:ignore="SelectableText" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/reminder"
-            style="@style/event_detail_input_area" >
-
-            <TextView
-                android:id="@+id/reminder_tips"
-                style="@style/event_detail_input_area_label"
-                android:layout_alignParentLeft="true"
-                android:text="@string/event_reminder" />
-
-            <TextView
-                android:id="@+id/reminder_text"
-                style="@style/event_detail_input_area_editText"
-                android:layout_toRightOf="@+id/reminder_tips"
-                android:background="#00ffffff"
-                android:gravity="center"
-                android:paddingTop="4dp"
-                android:text="@string/noth" />
-        </RelativeLayout>
-
-        <RelativeLayout
-            android:id="@+id/attendees"
-            style="@style/event_detail_input_area" >
-
-            <TextView
-                android:id="@+id/attendees_text"
-                style="@style/event_detail_input_area_label"
-                android:layout_alignParentLeft="true"
-                android:text="@string/Attendees" />
-        </RelativeLayout>
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
 
         <LinearLayout
-            android:id="@+id/description"
-            style="@style/event_detail_input_area"
-            android:layout_height="100dp"
-            android:orientation="horizontal" >
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="20dp"
+            android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/description_text"
-                style="@style/event_detail_input_area_label"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="top|left"
-                android:text="@string/description" />
+                android:id="@+id/wedding_name_label"
+                style="@style/event_detail_input_area"
+                android:layout_marginBottom="10dp"
+                android:text="Alva Chan的婚禮" />
 
-            <EditText
-                android:id="@+id/description_edit_text"
+            <RelativeLayout
+                style="@style/event_detail_input_area"
+                android:layout_marginTop="10dp" >
+
+                <TextView
+                    android:id="@+id/title_text"
+                    style="@style/event_detail_input_area_label"
+                    android:layout_alignParentLeft="true"
+                    android:text="@string/event_title" />
+
+                <EditText
+                    android:id="@+id/title_edit"
+                    style="@style/event_detail_input_area_editText"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/title_text"
+                    android:background="@drawable/input_area_edit"
+                    android:gravity="center_vertical|left"
+                    android:inputType="text"
+                    android:singleLine="true"
+                    android:textCursorDrawable="@drawable/edit_cursor" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/choose_date_area"
+                style="@style/event_detail_input_area" >
+
+                <TextView
+                    android:id="@+id/date_text"
+                    style="@style/event_detail_input_area_label"
+                    android:layout_alignParentLeft="true"
+                    android:text="@string/event_date" />
+
+                <TextView
+                    android:id="@+id/date_edit"
+                    style="@style/event_detail_input_area_editText"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/date_text"
+                    android:background="@drawable/input_area_edit"
+                    android:gravity="center_vertical|left"
+                    tools:ignore="SelectableText" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/reminder"
+                style="@style/event_detail_input_area" >
+
+                <TextView
+                    android:id="@+id/reminder_tips"
+                    style="@style/event_detail_input_area_label"
+                    android:layout_alignParentLeft="true"
+                    android:text="@string/event_reminder" />
+
+                <TextView
+                    android:id="@+id/reminder_text"
+                    style="@style/event_detail_input_area_editText"
+                    android:layout_centerVertical="true"
+                    android:layout_toRightOf="@+id/reminder_tips"
+                    android:background="@drawable/input_area_edit"
+                    android:gravity="center_vertical|left"
+                    tools:ignore="SelectableText" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/attendees"
+                style="@style/event_detail_input_area" >
+
+                <TextView
+                    android:id="@+id/attendees_text"
+                    style="@style/event_detail_input_area_label"
+                    android:layout_alignParentLeft="true"
+                    android:text="@string/Attendees" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/description"
+                style="@style/event_detail_input_area"
+                android:layout_height="100dp"
+                android:orientation="horizontal" >
+
+                <TextView
+                    android:id="@+id/description_text"
+                    style="@style/event_detail_input_area_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top|left"
+                    android:text="@string/description" />
+
+                <EditText
+                    android:id="@+id/description_edit_text"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/input_area_edit"
+                    android:gravity="top|left"
+                    android:inputType="textMultiLine"
+                    android:paddingLeft="3dp"
+                    android:paddingTop="4dp"
+                    android:textColor="#000000"
+                    android:textCursorDrawable="@drawable/edit_cursor" >
+                </EditText>
+            </LinearLayout>
+
+            <Button
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/input_area_edit"
-                android:gravity="top|left"
-                android:paddingLeft="3dp"
-                android:paddingTop="4dp"
-                android:inputType="textMultiLine"
-                android:textColor="#000000" >
-            </EditText>
+                android:layout_height="wrap_content"
+                android:layout_margin="20dp"
+                android:visibility="gone"
+                android:background="@drawable/bottom_button"
+                android:id="@+id/deleteBtn"
+                android:text="@string/delete"
+                 />
         </LinearLayout>
-    </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>

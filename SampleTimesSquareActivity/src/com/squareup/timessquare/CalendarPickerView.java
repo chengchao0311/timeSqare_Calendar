@@ -210,7 +210,7 @@ public class CalendarPickerView extends ViewPager {
 				adapter.notifyDataSetChanged();
 				// 刷新toDoList
 				if (cell.isHasEvent()) {
-					toDoListCallBack.showEventsForTheDay(true);
+					toDoListCallBack.showEventsForTheDay();
 				} else {
 					toDoListCallBack.clearAndrefresh();
 				}

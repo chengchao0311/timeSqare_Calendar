@@ -32,6 +32,9 @@ public class ToDoAdapter extends ArrayAdapter<PNEvent> {
 	public View getView(int position, View convertView, ViewGroup parent) {
 		View view = ((Activity)context).getLayoutInflater().inflate(R.layout.to_do_list_item,parent,false);
 		TextView textView = (TextView) view.findViewById(R.id.to_do_item);
+		if (list.get(position).title.equalsIgnoreCase("")) {
+			list.get(position).title = "(無標題)";
+		}
 		textView.setText(list.get(position).title);
 		return view;
 	}

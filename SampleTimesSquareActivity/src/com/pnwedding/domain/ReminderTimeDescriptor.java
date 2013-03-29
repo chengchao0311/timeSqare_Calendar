@@ -7,14 +7,12 @@ public class ReminderTimeDescriptor implements Parcelable{
 	public String text;
 	public long timeMills;
 
-	public ReminderTimeDescriptor setText(String text) {
+	public void setText(String text) {
 		this.text = text;
-		return this;
 	}
 
-	public ReminderTimeDescriptor setTimeMills(Long timeMills) {
+	public void setTimeMills(Long timeMills) {
 		this.timeMills = timeMills;
-		return this;
 	}
 
 	
