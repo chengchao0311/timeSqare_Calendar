@@ -5,9 +5,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,18 +13,15 @@ import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import com.pnwedding.domain.PNCalendar;
 import com.pnwedding.domain.PNEvent;
-import com.pnwedding.utils.Utils;
 import com.squareup.timessquare.CalendarPickerView;
 import com.squareup.timessquare.MonthCellDescriptor;
 
@@ -170,7 +164,7 @@ public class CalendarPage extends FragmentActivity implements
 				}
 			}
 		});
-
+		
 	}
 
 	// ***************************************//
@@ -238,10 +232,7 @@ public class CalendarPage extends FragmentActivity implements
 	@SuppressLint("NewApi")
 	@Override
 	public void onPageSelected(int arg0) {
-
-		oneDayEvents.clear();// 清空listview
 		toDoAdapter.notifyDataSetChanged();
-
 		title.setText(calendarPickView.months.get(arg0).getLabel());
 		// 计算在不同行數的情况下 bottom的位置
 		if (rowFive == 0 || rowSix == 0 || rowFour == 0) {

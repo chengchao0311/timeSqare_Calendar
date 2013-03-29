@@ -94,13 +94,12 @@
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_marginLeft="40dp"
-        android:scrollbars="none"
         android:layout_marginRight="40dp"
         android:divider="@color/to_do_list_divider"
-        android:dividerHeight="1dp" >
-
+        android:dividerHeight="1dp"
+        android:scrollbars="none" >
     </ListView>
 
 </LinearLayout>
