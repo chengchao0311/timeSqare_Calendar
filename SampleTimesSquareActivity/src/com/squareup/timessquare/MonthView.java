@@ -27,7 +27,7 @@ public class MonthView extends LinearLayout {
 	private static int textColor;
 	private CalendarGridView grid;
 	private Listener listener;
-
+	
 	public static MonthView create(ViewGroup parent, LayoutInflater inflater,
 			DateFormat weekdayNameFormat, Listener listener, Calendar today) {
 		final MonthView view = (MonthView) inflater.inflate(R.layout.month,

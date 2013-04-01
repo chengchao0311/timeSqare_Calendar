@@ -11,7 +11,7 @@
   <string name="add_event_plus">"   +  "</string>
   <string name="back">返回</string>
   <string name="add_event_label">日程编辑</string>
-  <string name="done">確定</string>
+  <string name="done">完成</string>
   <string name="from">從</string>
   <string name="to">到</string>
   <string name="event_title">主題:</string>
@@ -24,4 +24,5 @@
   <string name="event_title_hint">标题</string>
   <string name="edit">編輯</string>
   <string name="delete">剷除</string>
+  <string name="delete_event">删除事件</string>
 </resources>

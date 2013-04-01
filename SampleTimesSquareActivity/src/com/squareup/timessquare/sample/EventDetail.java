@@ -6,6 +6,8 @@ import java.util.Set;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -13,10 +15,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.pnwedding.domain.PNCalendar;
@@ -47,6 +51,7 @@ public class EventDetail extends Activity implements OnClickListener {
 	private RelativeLayout choosDateArea;
 	private RelativeLayout remindeArea;
 	private long eventId = EventDetail.NO_EVENT_TAG;
+	private ScrollView scrollView;
 
 	@SuppressLint({ "SimpleDateFormat", "NewApi" })
 	@Override
@@ -69,10 +74,10 @@ public class EventDetail extends Activity implements OnClickListener {
 		deleteBtn = (Button) findViewById(R.id.deleteBtn);
 		choosDateArea = (RelativeLayout) findViewById(R.id.choose_date_area);
 		remindeArea = (RelativeLayout) findViewById(R.id.reminder);
+		scrollView = (ScrollView) findViewById(R.id.scrollView);
+	
 
-		// 獲得傳來的參數，顯示日期
-		Bundle extras = getIntent().getExtras();
-
+		//点击事件处理
 		choosDateArea.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -85,7 +90,7 @@ public class EventDetail extends Activity implements OnClickListener {
 						CalendarPage.EVENTDETAIL_CHOOSEDATE);
 			}
 		});
-
+		
 		remindeArea.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -97,7 +102,23 @@ public class EventDetail extends Activity implements OnClickListener {
 						CalendarPage.EVENTDETAIL_CHOOSEREMINDER);
 			}
 		});
-
+		
+		desView.setOnFocusChangeListener(new OnFocusChangeListener() {
+			
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (hasFocus) {
+					scrollView.post(new Runnable() {
+						public void run() {
+							scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+						}
+					});
+				}
+			}
+		});
+		
+		// 獲得傳來的參數，决定当前状态,顯示日期
+		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			requestCode = extras.getInt("request_code");
 			pnCalendar = extras.getParcelable("pnCalendar");
@@ -115,13 +136,13 @@ public class EventDetail extends Activity implements OnClickListener {
 			} else if (requestCode == CalendarPage.CALENDARPAGE_EVENTDETAIL_EDIT) {
 				// 點擊的是to/ do
 				// 獲取Event 對頁面進行刷新 // list的某个item,编辑事件
-
 				PNEvent pnEvent = extras.getParcelable("pnEvent");
 				eventId = pnEvent._id;
 				titleView.setText(pnEvent.title);
 				desView.setText(pnEvent.description);
 				updateDateText(pnEvent.dtstart, pnEvent.dtend);
-
+				titleView.setEnabled(false);
+				desView.setEnabled(false);
 				// 查詢數據庫找到事件對應的reminder,和配置文件比對,得到key
 				if (pnEvent.hasAlarm) {
 					reminderTimeMills = pnCalendar.queryReminder(this,
@@ -143,20 +164,48 @@ public class EventDetail extends Activity implements OnClickListener {
 					reminderTextView.setText("無");
 				}
 				// 改變btn 狀態
-				choosDateArea.setClickable(false);
-				remindeArea.setClickable(false);
-
-
+				choosDateArea.setEnabled(false);
+				remindeArea.setEnabled(false);
 				updateSaveBtnSatuts();
+				
+				//编辑按钮点击后的事件
 				saveBtn.setText(getResources().getString(R.string.edit));
 				saveBtn.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
 						saveBtn.setText(getResources().getString(R.string.done));
+						
+						titleView.setEnabled(true);
+						desView.setEnabled(true);
+						titleView.requestFocus();
+						
 						// update Event;
 						deleteBtn.setVisibility(ViewGroup.VISIBLE);
-						choosDateArea.setClickable(true);
-						remindeArea.setClickable(true);
+						deleteBtn.setOnClickListener(new OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								AlertDialog.Builder builder = new AlertDialog.Builder(EventDetail.this);
+								builder.setTitle("确定删除事件?");
+								builder.setPositiveButton(R.string.delete_event, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										setResult(CalendarPage.CALENDARPAGE_EVENTDETAIL_DELETED);
+										finish();
+									}
+								});
+								builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+									
+									@Override
+									public void onClick(DialogInterface dialog, int which) {
+										dialog.dismiss();
+									}
+								});
+								builder.show();
+							}
+						});
+						choosDateArea.setEnabled(true);
+						remindeArea.setEnabled(true);
 					}
 				});
 			}
@@ -291,6 +340,5 @@ public class EventDetail extends Activity implements OnClickListener {
 			saveBtn.setBackgroundDrawable(getResources().getDrawable(
 					R.drawable.head_button_unclicked));
 		}
-
 	}
 }

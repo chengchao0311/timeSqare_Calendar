@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -32,8 +33,11 @@ public class CalendarPage extends FragmentActivity implements
 	public static boolean refreshCPVTag;
 	public static int CALENDARPAGE_EVENTDETAIL_NORMAL = 11101;
 	public static int CALENDARPAGE_EVENTDETAIL_EDIT = 11102;
+	public static int CALENDARPAGE_EVENTDETAIL_DELETED = 11103;
 	public static int EVENTDETAIL_CHOOSEDATE = 1111;
 	public static int EVENTDETAIL_CHOOSEREMINDER = 1112;
+
+	public boolean isLaunching;
 	private int position;
 	private CalendarPickerView calendarPickView;
 	private TextView title;
@@ -48,6 +52,7 @@ public class CalendarPage extends FragmentActivity implements
 	private ToDoAdapter toDoAdapter;
 	private PNCalendar pnCalendar;
 	private Handler handler;
+	private int monthIndex;
 
 	@SuppressLint({ "SimpleDateFormat", "NewApi" })
 	@Override
@@ -55,14 +60,16 @@ public class CalendarPage extends FragmentActivity implements
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.calendar_picker);
 		handler = new Handler();
+		isLaunching = true;
 		// 初始化配置文件
-		SharedPreferences appConfig = getSharedPreferences("app_config", MODE_PRIVATE);
+		SharedPreferences appConfig = getSharedPreferences("app_config",
+				MODE_PRIVATE);
 		Map<String, ?> all = appConfig.getAll();
 		checkConfig(appConfig, "calendar_max_year", 3);
 		checkConfig(appConfig, "calendar_start_year", 1995);
 		checkConfig(appConfig, "calendar_start_month", 0);
 		checkConfig(appConfig, "calendar_start_date", 1);
-		
+
 		// 計算每天格子的大小 為調整buttom做準備
 		DisplayMetrics displayMetrics = getResources().getDisplayMetrics();
 		cellSize = displayMetrics.widthPixels / 7;
@@ -108,8 +115,7 @@ public class CalendarPage extends FragmentActivity implements
 		calendarPickView.setVerticalScrollBarEnabled(false);
 		calendarPickView.setEnabled(false);
 		calendarPickView.setOnPageChangeListener(this);
-
-
+		monthIndex = calendarPickView.selectedCell.getMonthIndex();//把选中月份设置为今天
 		// 初始化Calendar位置
 		calendarPickView.setLayoutParams(new LinearLayout.LayoutParams(
 				calendarPickView.getLayoutParams().width, (cellSize * 6)));
@@ -164,7 +170,7 @@ public class CalendarPage extends FragmentActivity implements
 				}
 			}
 		});
-		
+
 	}
 
 	// ***************************************//
@@ -176,7 +182,9 @@ public class CalendarPage extends FragmentActivity implements
 		calendarPickView.toDoListCallBack = null;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see android.support.v4.app.FragmentActivity#onResume()
 	 */
 	@Override
@@ -189,8 +197,11 @@ public class CalendarPage extends FragmentActivity implements
 	 * 
 	 */
 	public void refresCPVAndToDoList() {
-		pnCalendar.queryCalendaerEventsRefreshCPV(this, events,calendarPickView);
-		pnCalendar.queryAndFillOneDayEventAndRefreshToDoList(this, calendarPickView.selectedCell.getDate().getTime(), oneDayEvents, toDoAdapter);
+		pnCalendar.queryCalendaerEventsRefreshCPV(this, events,
+				calendarPickView);
+		pnCalendar.queryAndFillOneDayEventAndRefreshToDoList(this,
+				calendarPickView.selectedCell.getDate().getTime(),
+				oneDayEvents, toDoAdapter);
 	}
 
 	@Override
@@ -201,7 +212,6 @@ public class CalendarPage extends FragmentActivity implements
 			if (extras != null) {
 				long time = extras.getLong("dtstart");
 				// 獲得創建好的事件的時間的midNight
-				Date date = new Date(time);
 				final MonthCellDescriptor cell = calendarPickView
 						.getCellByDate(new Date(time));
 				if (cell != null) {
@@ -209,6 +219,7 @@ public class CalendarPage extends FragmentActivity implements
 						calendarPickView.setSelectedCell(cell);
 						calendarPickView.scrollToSelectedMonth(cell
 								.getMonthIndex());
+						monthIndex = cell.getMonthIndex();
 					}
 				}
 			}
@@ -232,7 +243,15 @@ public class CalendarPage extends FragmentActivity implements
 	@SuppressLint("NewApi")
 	@Override
 	public void onPageSelected(int arg0) {
-		toDoAdapter.notifyDataSetChanged();
+			if (arg0 != monthIndex) {//如果当前展示的月份 不是选中日期所在的月份就清空toDoList
+				oneDayEvents.clear();
+				toDoAdapter.notifyDataSetChanged();
+			} else {
+				pnCalendar.queryAndFillOneDayEventAndRefreshToDoList(this,//
+						calendarPickView.selectedCell.getDate().getTime(),//
+						oneDayEvents, toDoAdapter);
+			}
+
 		title.setText(calendarPickView.months.get(arg0).getLabel());
 		// 计算在不同行數的情况下 bottom的位置
 		if (rowFive == 0 || rowSix == 0 || rowFour == 0) {
@@ -257,14 +276,18 @@ public class CalendarPage extends FragmentActivity implements
 	}
 
 	@Override
-	public void clearAndrefresh() {//当点中的日期 没有事件时使用
+	public void clearAndrefresh(int monthIndex) {// 当点中的日期 没有事件时使用
+		this.monthIndex = monthIndex;
 		oneDayEvents.clear();
 		toDoAdapter.notifyDataSetChanged();
 	}
 
 	@Override
-	public void showEventsForTheDay() {// 查詢數據庫 更新todo list
-		pnCalendar.queryAndFillOneDayEventAndRefreshToDoList(this, calendarPickView.selectedCell.getDate().getTime(), oneDayEvents, toDoAdapter);
+	public void showEventsForTheDay(int monthIndex) {// 查詢數據庫 更新todo list
+		this.monthIndex = monthIndex;
+		pnCalendar.queryAndFillOneDayEventAndRefreshToDoList(this,
+				calendarPickView.selectedCell.getDate().getTime(),
+				oneDayEvents, toDoAdapter);
 	}
 
 	// ***************************************//
@@ -276,7 +299,7 @@ public class CalendarPage extends FragmentActivity implements
 			appConfig.edit().putInt(key, val).commit();
 		}
 	}
-	
+
 	public void checkConfig(SharedPreferences appConfig, String key, long val) {
 		Map<String, ?> map = appConfig.getAll();
 		if (!map.containsKey(key)) {
@@ -285,8 +308,9 @@ public class CalendarPage extends FragmentActivity implements
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-		PNEvent pnEvent = oneDayEvents.get(position-1);
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		PNEvent pnEvent = oneDayEvents.get(position - 1);
 		Intent intent = new Intent();
 		intent.putExtra("pnEvent", pnEvent);
 		intent.putExtra("pnCalendar", pnCalendar);

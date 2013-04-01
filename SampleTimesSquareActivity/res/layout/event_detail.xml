@@ -10,6 +10,8 @@
         android:id="@+id/head_layout"
         android:layout_width="match_parent"
         android:layout_height="40dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:background="#F5F5F5" >
 
         <Button
@@ -45,6 +47,7 @@
     </RelativeLayout>
 
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" >
 

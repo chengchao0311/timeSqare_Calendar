@@ -210,9 +210,9 @@ public class CalendarPickerView extends ViewPager {
 				adapter.notifyDataSetChanged();
 				// 刷新toDoList
 				if (cell.isHasEvent()) {
-					toDoListCallBack.showEventsForTheDay();
+					toDoListCallBack.showEventsForTheDay(cell.getMonthIndex());
 				} else {
-					toDoListCallBack.clearAndrefresh();
+					toDoListCallBack.clearAndrefresh(cell.getMonthIndex());
 				}
 			}
 		}

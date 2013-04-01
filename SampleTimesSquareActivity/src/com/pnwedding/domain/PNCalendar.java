@@ -286,11 +286,19 @@ public class PNCalendar implements Parcelable {
 	public boolean deleteEvent(Context context, long event_id) {
 		try {
 			ContentResolver cr = context.getContentResolver();
+			
+			Cursor cur = Reminders.query(cr, event_id, null);
+			while (cur.moveToNext()) {
+				Uri reminderuri = ContentUris.withAppendedId(Reminders.CONTENT_URI, cur.getLong(cur.getColumnIndex("_id")));
+				cr.delete(reminderuri, null, null);
+			}
+			
 			// Uri,delete
 			Uri uri = ContentUris.withAppendedId(Events.CONTENT_URI, event_id);
 			int rows = cr.delete(uri, null, null);
 			if (rows > 0) {
 				return true;
+			
 			} else {
 				return false;
 			}
