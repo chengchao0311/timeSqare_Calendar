@@ -30,7 +30,6 @@ public class ChooseDate extends Activity {
 	private Button toTime;
 	private long dtstart;
 	private long dtend;
-	private boolean editFlag;
 	private Button saveBtn;
 
 	@SuppressLint("SimpleDateFormat")
@@ -60,11 +59,6 @@ public class ChooseDate extends Activity {
 		if (extras != null) {
 			dtstart = extras.getLong("dstart");
 			dtend = extras.getLong("dtend");
-			if (extras.getString("editFlag") != null) {
-				editFlag = true;
-			}else {
-				setSaveBtnClickable();
-			}
 			if (dtstart != 0 && dtend != 0) {
 				fromDateCal.setTimeInMillis(dtstart);
 				toDateCal.setTimeInMillis(dtend);
@@ -145,17 +139,7 @@ public class ChooseDate extends Activity {
 							}
 							toTime.setText(buildTimeString(toDateCal));
 						}
-						// 時間是否改變，如果改變 儲存按鈕 才可以點擊
-						if (editFlag) {
-							if (dtstart != fromDateCal.getTimeInMillis()
-									|| dtend != toDateCal.getTimeInMillis()) {
-								setSaveBtnClickable();
-							} else {
-								setSaveBtnUnClickable();
-							}
-						} else {
-							setSaveBtnClickable();
-						}
+						
 
 					}
 
@@ -221,17 +205,6 @@ public class ChooseDate extends Activity {
 							toDate.setText(buildDateString(toDateCal));
 							toTime.setText(buildTimeString(toDateCal));
 						}
-
-						if (editFlag) {
-							if (dtstart != fromDateCal.getTimeInMillis()
-									|| dtend != toDateCal.getTimeInMillis()) {
-								setSaveBtnClickable();
-							} else {
-								setSaveBtnUnClickable();
-							}
-						} else {
-							setSaveBtnClickable();
-						}
 					}
 				}, buildYear, buildMonth, buildDate);
 		datePicker.show();
@@ -273,22 +246,4 @@ public class ChooseDate extends Activity {
 	}
 	
 	
-	/**
-	 * 
-	 */
-	public void setSaveBtnUnClickable() {
-		saveBtn.setClickable(false);
-		saveBtn.setBackgroundDrawable(getResources()
-				.getDrawable(
-						R.drawable.head_button_unclicked));
-	}
-
-	/**
-	 * 
-	 */
-	public void setSaveBtnClickable() {
-		saveBtn.setClickable(true);
-		saveBtn.setBackgroundDrawable(getResources()
-				.getDrawable(R.drawable.head_button));
-	}
 }

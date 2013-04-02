@@ -62,9 +62,12 @@ public class EventDetail extends Activity implements OnClickListener {
 		// 初始化
 		simpleDateFormat = new SimpleDateFormat("yyyy年MM月dd日");
 		timeFormater = new SimpleDateFormat("HH" + "點" + "mm" + "分");
+		reminderTimeDescriptor = new ReminderTimeDescriptor();
 		fromCal = Calendar.getInstance();
 		toCal = Calendar.getInstance();
 		reminderTimeMills = 0L;
+		reminderTimeDescriptor.setText("無");
+		reminderTimeDescriptor.setTimeMills(0L);
 		// 初始化View
 		saveBtn = (Button) findViewById(R.id.save_button);
 		titleView = (EditText) findViewById(R.id.title_edit);
@@ -75,9 +78,8 @@ public class EventDetail extends Activity implements OnClickListener {
 		choosDateArea = (RelativeLayout) findViewById(R.id.choose_date_area);
 		remindeArea = (RelativeLayout) findViewById(R.id.reminder);
 		scrollView = (ScrollView) findViewById(R.id.scrollView);
-	
 
-		//点击事件处理
+		// 点击事件处理
 		choosDateArea.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -90,7 +92,7 @@ public class EventDetail extends Activity implements OnClickListener {
 						CalendarPage.EVENTDETAIL_CHOOSEDATE);
 			}
 		});
-		
+
 		remindeArea.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -102,9 +104,9 @@ public class EventDetail extends Activity implements OnClickListener {
 						CalendarPage.EVENTDETAIL_CHOOSEREMINDER);
 			}
 		});
-		
+
 		desView.setOnFocusChangeListener(new OnFocusChangeListener() {
-			
+
 			@Override
 			public void onFocusChange(View v, boolean hasFocus) {
 				if (hasFocus) {
@@ -116,7 +118,7 @@ public class EventDetail extends Activity implements OnClickListener {
 				}
 			}
 		});
-		
+
 		// 獲得傳來的參數，决定当前状态,顯示日期
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -129,9 +131,11 @@ public class EventDetail extends Activity implements OnClickListener {
 				if (timemills != 0) {
 					fromCal.setTimeInMillis(timemills);
 					toCal.setTimeInMillis(timemills);
+					fromCal.set(Calendar.HOUR_OF_DAY, 12);
+					toCal.set(Calendar.HOUR_OF_DAY, 13);
 					selectedDate = simpleDateFormat.format(fromCal.getTime());
 				}
-				choosDateTextView.setText(selectedDate);
+				updateDateText(fromCal.getTimeInMillis(),toCal.getTimeInMillis());
 				saveBtn.setOnClickListener(this);
 			} else if (requestCode == CalendarPage.CALENDARPAGE_EVENTDETAIL_EDIT) {
 				// 點擊的是to/ do
@@ -156,56 +160,82 @@ public class EventDetail extends Activity implements OnClickListener {
 							long val = Long.parseLong(valStr);
 							if (val == reminderTimeMills) {
 								reminderTextView.setText(key);
+								reminderTimeDescriptor.setText(key);
+								reminderTimeDescriptor.setTimeMills(val);
 								break;
 							}
 						}
 					}
 				} else {
 					reminderTextView.setText("無");
+					reminderTimeDescriptor.text = "無";
 				}
 				// 改變btn 狀態
 				choosDateArea.setEnabled(false);
 				remindeArea.setEnabled(false);
 				updateSaveBtnSatuts();
-				
-				//编辑按钮点击后的事件
+
+				// 编辑按钮点击后的事件
 				saveBtn.setText(getResources().getString(R.string.edit));
 				saveBtn.setOnClickListener(new OnClickListener() {
 					@Override
 					public void onClick(View v) {
+						// 切换ui界面
 						saveBtn.setText(getResources().getString(R.string.done));
-						
 						titleView.setEnabled(true);
 						desView.setEnabled(true);
 						titleView.requestFocus();
-						
-						// update Event;
 						deleteBtn.setVisibility(ViewGroup.VISIBLE);
+						choosDateArea.setEnabled(true);
+						remindeArea.setEnabled(true);
+
+						// 为删除按钮,添加
 						deleteBtn.setOnClickListener(new OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								AlertDialog.Builder builder = new AlertDialog.Builder(EventDetail.this);
+								AlertDialog.Builder builder = new AlertDialog.Builder(
+										EventDetail.this);
 								builder.setTitle("确定删除事件?");
-								builder.setPositiveButton(R.string.delete_event, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										setResult(CalendarPage.CALENDARPAGE_EVENTDETAIL_DELETED);
-										finish();
-									}
-								});
-								builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-									
-									@Override
-									public void onClick(DialogInterface dialog, int which) {
-										dialog.dismiss();
-									}
-								});
+								builder.setPositiveButton(
+										R.string.delete_event,
+										new DialogInterface.OnClickListener() {
+
+											@Override
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+												pnCalendar.deleteEvent(EventDetail.this, eventId);
+												setResult(CalendarPage.CALENDARPAGE_EVENTDETAIL_DELETED);
+												finish();
+											}
+										});
+								builder.setNegativeButton(
+										android.R.string.cancel,
+										new DialogInterface.OnClickListener() {
+
+											@Override
+											public void onClick(
+													DialogInterface dialog,
+													int which) {
+												dialog.dismiss();
+											}
+										});
 								builder.show();
 							}
 						});
-						choosDateArea.setEnabled(true);
-						remindeArea.setEnabled(true);
+
+						saveBtn.setOnClickListener(new OnClickListener() {
+
+							@Override
+							public void onClick(View v) {
+								pnCalendar.updateEvent(EventDetail.this,//
+										eventId, pnCalendar._id, titleView//
+												.getText().toString(), desView//
+												.getText().toString(), fromCal//
+												, toCal, reminderTimeDescriptor.timeMills);
+								finish();
+							}
+						});
 					}
 				});
 			}

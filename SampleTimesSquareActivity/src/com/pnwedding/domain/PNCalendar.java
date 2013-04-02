@@ -286,19 +286,14 @@ public class PNCalendar implements Parcelable {
 	public boolean deleteEvent(Context context, long event_id) {
 		try {
 			ContentResolver cr = context.getContentResolver();
-			
-			Cursor cur = Reminders.query(cr, event_id, null);
-			while (cur.moveToNext()) {
-				Uri reminderuri = ContentUris.withAppendedId(Reminders.CONTENT_URI, cur.getLong(cur.getColumnIndex("_id")));
-				cr.delete(reminderuri, null, null);
-			}
-			
+			deleteReminderOfTheEvent(event_id, cr);
+
 			// Uri,delete
 			Uri uri = ContentUris.withAppendedId(Events.CONTENT_URI, event_id);
 			int rows = cr.delete(uri, null, null);
 			if (rows > 0) {
 				return true;
-			
+
 			} else {
 				return false;
 			}
@@ -307,32 +302,51 @@ public class PNCalendar implements Parcelable {
 		}
 	}
 
+	/**
+	 * @param context
+	 * @param event_id
+	 * @param cal_id
+	 * @param title
+	 * @param description
+	 * @param start
+	 * @param end
+	 * @param hasAlarm
+	 * @param allDay
+	 * @return
+	 */
 	@SuppressLint({ "InlinedApi", "NewApi" })
 	public boolean updateEvent(Context context, long event_id, long cal_id,
-			String timezone, String title, String description, String place,
-			Calendar start, Calendar end, String hasAlarm, String allDay) {
+			String title, String description,
+			Calendar start, Calendar end, long hasAlarm) {
 		try {
 			ContentResolver cr = context.getContentResolver();
 			ContentValues values = new ContentValues();
 			// values
-			if (cal_id != -1)
+			if (cal_id != -1){
 				values.put(Events.CALENDAR_ID, cal_id);
-			if (title != null)
+			}
+			if (title != null){
 				values.put(Events.TITLE, title);
-			if (description != null)
+			}
+			if (description != null){
 				values.put(Events.DESCRIPTION, description);
-			if (place != null)
-				values.put(Events.EVENT_LOCATION, place);
-			if (timezone != null)
-				values.put(Events.EVENT_TIMEZONE, timezone);
-			if (start != null)
+			}
+			if (start != null){
 				values.put(Events.DTSTART, start.getTimeInMillis());
-			if (end != null)
+			}
+			if (end != null){
 				values.put(Events.DTEND, end.getTimeInMillis());
-			if (allDay != null)
-				values.put(Events.ALL_DAY, allDay);
-			if (hasAlarm != null)
-				values.put(Events.HAS_ALARM, hasAlarm);
+			}
+			values.put(Events.ALL_DAY, "0");
+			if (hasAlarm != 0L) {//事件部分 
+				values.put(Events.HAS_ALARM, "1");
+			} else {
+				values.put(Events.HAS_ALARM, "0");
+			}
+			
+			updateReminder(context, event_id, hasAlarm, cr);
+
+
 			// Uri,long_id
 			String where = Events._ID + "=?";
 			String[] selectionArgs = new String[] { String.valueOf(event_id) };
@@ -345,6 +359,35 @@ public class PNCalendar implements Parcelable {
 			}
 		} catch (Exception e) {
 			return false;
+		}
+	}
+
+	/**
+	 * @param context
+	 * @param event_id
+	 * @param hasAlarm
+	 * @param cr
+	 */
+	public void updateReminder(Context context, long event_id, long hasAlarm,
+			ContentResolver cr) {
+		long minute = queryReminder(context, event_id);// 查询之前的提醒时间
+		if (minute != 0) {// 没提醒的话会返回0, 如果之前有
+			if (hasAlarm != 0) {//
+				if (minute == hasAlarm) {// 有,但是没有改动时间
+					// 什么都不做
+				} else {// 有但是改动过时间
+					deleteReminderOfTheEvent(event_id, cr);
+					addReminder(context, event_id, hasAlarm);
+				}
+			} else {// 如果是从有改成没有,直接删除之前的
+				deleteReminderOfTheEvent(event_id, cr);
+			}
+		} else {// 如果之前没有
+			if (hasAlarm != 0) {//没有改成有
+				addReminder(context, event_id, hasAlarm);
+			}else {//都没有
+				//什么都不做
+			}
 		}
 	}
 
@@ -370,6 +413,20 @@ public class PNCalendar implements Parcelable {
 		}
 
 		return minute;
+	}
+
+	/**
+	 * @param event_id
+	 * @param cr
+	 */
+	@SuppressLint("NewApi")
+	public void deleteReminderOfTheEvent(long event_id, ContentResolver cr) {
+		Cursor cur = Reminders.query(cr, event_id, null);
+		while (cur.moveToNext()) {
+			Uri reminderuri = ContentUris.withAppendedId(Reminders.CONTENT_URI,
+					cur.getLong(cur.getColumnIndex("_id")));
+			cr.delete(reminderuri, null, null);
+		}
 	}
 
 	// ***************************************//
